@@ -17,7 +17,7 @@ export default function ActionButtons({ onDislike, onComment, onLike }: Props) {
         padding: 'var(--space-lg) var(--space-gutter)',
       }}
     >
-      <ActionBtn onClick={onDislike} size={56} aria-label="아쉬워요">
+      <ActionBtn onClick={onDislike} size={56} aria-label="아쉬워요" danger>
         <span style={{ fontSize: 24 }}>✕</span>
       </ActionBtn>
       <ActionBtn onClick={onComment} size={48} aria-label="댓글">
@@ -35,14 +35,24 @@ function ActionBtn({
   onClick,
   size,
   primary = false,
+  danger = false,
   'aria-label': ariaLabel,
 }: {
   children: React.ReactNode
   onClick: () => void
   size: number
   primary?: boolean
+  danger?: boolean
   'aria-label'?: string
 }) {
+  const bg = primary ? 'var(--color-primary)' : danger ? '#ff5555' : 'var(--color-surface-container-high)'
+  const color = primary || danger ? '#fff' : 'var(--color-on-surface)'
+  const shadow = primary
+    ? '0 4px 16px rgba(83,224,118,0.35)'
+    : danger
+    ? '0 4px 16px rgba(255,85,85,0.35)'
+    : 'none'
+
   return (
     <motion.button
       onClick={onClick}
@@ -53,14 +63,14 @@ function ActionBtn({
         width: size,
         height: size,
         borderRadius: 'var(--radius-full)',
-        background: primary ? 'var(--color-primary)' : 'var(--color-surface-container-high)',
-        color: primary ? 'var(--color-on-primary)' : 'var(--color-on-surface)',
+        background: bg,
+        color,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        border: primary ? 'none' : '1.5px solid var(--color-outline)',
-        boxShadow: primary ? '0 4px 16px rgba(83,224,118,0.25)' : 'none',
+        border: 'none',
+        boxShadow: shadow,
         cursor: 'pointer',
       }}
     >

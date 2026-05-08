@@ -155,16 +155,18 @@ export default function Card({ song, active, onSwipe }: Props) {
         }}
       />
 
-      {/* 4. LIKE / NOPE 배지 */}
+      {/* 4. LIKE / NOPE 도장 */}
       {active && (
         <motion.div
           style={{
             position: 'absolute',
             top: 'var(--space-xl)',
             left: 'var(--space-lg)',
-            border: '3px solid var(--color-primary)',
-            borderRadius: 8,
-            padding: '4px 14px',
+            border: '5px solid var(--color-primary)',
+            borderRadius: 10,
+            padding: '6px 18px',
+            background: 'rgba(83,224,118,0.15)',
+            transform: 'rotate(-12deg)',
             opacity: likeOpacity,
           }}
         >
@@ -173,8 +175,9 @@ export default function Card({ song, active, onSwipe }: Props) {
               color: 'var(--color-primary)',
               fontFamily: 'var(--font-display)',
               fontWeight: 900,
-              fontSize: 20,
-              letterSpacing: 3,
+              fontSize: 32,
+              letterSpacing: 6,
+              textShadow: '0 0 12px rgba(83,224,118,0.5)',
             }}
           >
             LIKE
@@ -187,19 +190,22 @@ export default function Card({ song, active, onSwipe }: Props) {
             position: 'absolute',
             top: 'var(--space-xl)',
             right: 'var(--space-lg)',
-            border: '3px solid #ff6060',
-            borderRadius: 8,
-            padding: '4px 14px',
+            border: '5px solid #ff5555',
+            borderRadius: 10,
+            padding: '6px 18px',
+            background: 'rgba(255,85,85,0.15)',
+            transform: 'rotate(12deg)',
             opacity: dislikeOpacity,
           }}
         >
           <span
             style={{
-              color: '#ff6060',
+              color: '#ff5555',
               fontFamily: 'var(--font-display)',
               fontWeight: 900,
-              fontSize: 20,
-              letterSpacing: 3,
+              fontSize: 32,
+              letterSpacing: 6,
+              textShadow: '0 0 12px rgba(255,85,85,0.5)',
             }}
           >
             NOPE
