@@ -6,6 +6,7 @@ import MainLayout from '@/components/layout/MainLayout'
 const LoginPage = lazy(() => import('@/components/auth/LoginPage'))
 const SignUpWizard = lazy(() => import('@/components/auth/SignUpWizard'))
 const RecommendationPage = lazy(() => import('@/components/recommendation/RecommendationPage'))
+const MyPage = lazy(() => import('@/components/mypage/MyPage'))
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
           <Route element={<MainLayout />}>
             <Route index element={<Navigate to="/discover" replace />} />
             <Route path="/discover" element={<RecommendationPage />} />
+            <Route path="/me" element={<MyPage />} />
           </Route>
         </Route>
 
