@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getRecommendations, postReaction } from '@/api'
+import { refreshTracks, postReaction } from '@/api'
 import { resolveYouTubeId } from '@/utils/resolveYouTubeId'
 import type { Song } from '@/types'
 import CardStack, { CardStackSkeleton } from './CardStack'
@@ -15,11 +15,10 @@ export default function RecommendationPage() {
   const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
-    getRecommendations()
-      .then((r) => {
-        setSongs(r.data)
-        r.data.forEach(async (song) => {
-          if (song.youtubeVideoId) return
+    refreshTracks()
+      .then((songs) => {
+        setSongs(songs)
+        songs.forEach(async (song) => {
           const info = await resolveYouTubeId(song.title, song.artist)
           if (info.videoId) {
             setSongs((prev) =>

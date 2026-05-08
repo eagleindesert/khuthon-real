@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
-import { SCENE_TAGS } from '@/utils/sceneTags'
-import type { SceneTag } from '@/utils/sceneTags'
 import { signUp } from '@/api'
+
+const PREFERRED_GENRES = ['힙합커뮤', '밴드커뮤', '일반인'] as const
+type PreferredGenre = typeof PREFERRED_GENRES[number]
 
 interface FormData {
   loginId: string
@@ -107,15 +108,15 @@ interface Step3Props {
 }
 
 function Step3Genre({ loading, onSubmit }: Step3Props) {
-  const [selected, setSelected] = useState<SceneTag | ''>('')
+  const [selected, setSelected] = useState<PreferredGenre | ''>('')
 
   return (
-    <WizardShell step={3} title="선호 장르 선택">
+    <WizardShell step={3} title="커뮤니티 선택">
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--text-body-sm)' }}>
-        가장 좋아하는 장르를 하나 골라주세요. 추천에 반영됩니다.
+        어느 커뮤니티에서 오셨나요?
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
-        {SCENE_TAGS.map((tag) => {
+        {PREFERRED_GENRES.map((tag) => {
           const active = selected === tag
           return (
             <button
