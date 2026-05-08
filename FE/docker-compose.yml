@@ -8,8 +8,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    environment:
-      - VITE_PROXY_TARGET=http://backend:8080
+    env_file:
+      - .env
     networks:
       - app-network
 

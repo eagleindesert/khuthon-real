@@ -1,8 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { readFileSync } from 'fs'
 import type { Plugin } from 'vite'
 import yts from 'yt-search'
+
+function readDotEnv(dir: string): Record<string, string> {
+  try {
+    return Object.fromEntries(
+      readFileSync(`${dir}/.env`, 'utf-8')
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l && !l.startsWith('#'))
+        .map((l) => {
+          const i = l.indexOf('=')
+          return [l.slice(0, i).trim(), l.slice(i + 1).trim()]
+        })
+    )
+  } catch {
+    return {}
+  }
+}
 
 function ytSearchPlugin(): Plugin {
   return {
@@ -31,24 +49,29 @@ function ytSearchPlugin(): Plugin {
   }
 }
 
-export default defineConfig({
-  plugins: [react(), ytSearchPlugin()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-    },
-  },
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: process.env.VITE_PROXY_TARGET || 'http://localhost:8080',
-        changeOrigin: true,
+export default defineConfig(() => {
+  const env = readDotEnv(__dirname)
+  const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8080'
+
+  return {
+    plugins: [react(), ytSearchPlugin()],
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, './src'),
       },
     },
-    watch: {
-      usePolling: true,
+    server: {
+      host: '0.0.0.0',
+      port: 5173,
+      proxy: {
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
+      },
+      watch: {
+        usePolling: true,
+      },
     },
-  },
+  }
 })
