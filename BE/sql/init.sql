@@ -15,25 +15,26 @@ CREATE TABLE IF NOT EXISTS genre (
 -- 2. SONG  (genre 참조)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS song (
-    song_id          BIGSERIAL PRIMARY KEY,
-    title            VARCHAR(255) NOT NULL,
-    artist           VARCHAR(255) NOT NULL,
-    genre_id         BIGINT       NOT NULL REFERENCES genre(genre_id),
-    duration_seconds INT,
-    youtube_video_id VARCHAR(50)  UNIQUE,
-    youtube_url      VARCHAR(512),
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
+    song_id            BIGSERIAL PRIMARY KEY,
+    title              VARCHAR(255) NOT NULL,
+    artist             VARCHAR(255) NOT NULL,
+    genre_id           BIGINT       NOT NULL REFERENCES genre(genre_id),
+    duration_seconds   INT,
+    youtube_video_id   VARCHAR(50)  UNIQUE,
+    youtube_url        VARCHAR(512),
+    hiphop_like_count  BIGINT NOT NULL DEFAULT 0,  -- 힙합커뮤 좋아요 수
+    band_like_count    BIGINT NOT NULL DEFAULT 0,  -- 밴드커뮤 좋아요 수
+    general_like_count BIGINT NOT NULL DEFAULT 0,  -- 일반인 좋아요 수
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
 -- ------------------------------------------------------------
--- 3. SONG_STATS  (song 1:1 캐시, song_id가 PK이자 FK)
+-- 3. SONG_STATS  (song 조회수 캐시)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS song_stats (
-    song_id                  BIGINT PRIMARY KEY REFERENCES song(song_id) ON DELETE CASCADE,
-    app_view_count           BIGINT NOT NULL DEFAULT 0,
-    app_like_count           BIGINT NOT NULL DEFAULT 0,
-    preferred_genre_like_count BIGINT NOT NULL DEFAULT 0,
-    updated_at               TIMESTAMP NOT NULL DEFAULT NOW()
+    song_id        BIGINT PRIMARY KEY REFERENCES song(song_id) ON DELETE CASCADE,
+    app_view_count BIGINT NOT NULL DEFAULT 0,
+    updated_at     TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- ------------------------------------------------------------
