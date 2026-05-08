@@ -10,6 +10,17 @@ interface Props {
   onSwipe?: (direction: 'like' | 'dislike') => void
 }
 
+// 16:9 영상을 3:4 카드에 "object-fit: cover"로 채우는 iframe 너비 비율
+// width = (16/9) / (3/4) * 100% ≈ 237%
+const VIDEO_COVER_WIDTH = `${(16 / 9 / (3 / 4)) * 100}%`
+
+function formatViews(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 10_000) return `${Math.round(n / 1_000)}K`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return `${n}`
+}
+
 export default function Card({ song, active, onSwipe }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
@@ -41,7 +52,20 @@ export default function Card({ song, active, onSwipe }: Props) {
         },
         events: {
           onReady: (e) => {
-            if (!destroyed) e.target.playVideo()
+            if (destroyed) return
+            e.target.playVideo()
+            // iframe을 카드에 꽉 차도록 "cover" 스타일 적용
+            const iframe = e.target.getIframe()
+            Object.assign(iframe.style, {
+              position: 'absolute',
+              width: VIDEO_COVER_WIDTH,
+              height: '100%',
+              left: '50%',
+              top: '0',
+              transform: 'translateX(-50%)',
+              border: 'none',
+              pointerEvents: 'none',
+            })
           },
         },
       })
@@ -100,7 +124,7 @@ export default function Card({ song, active, onSwipe }: Props) {
       onDragEnd={active ? handleDragEnd : undefined}
       whileDrag={{ cursor: 'grabbing' }}
     >
-      {/* Album art */}
+      {/* 1. 앨범 아트 — 영상 미로드 시 폴백 배경 */}
       {song.albumArtUrl && (
         <img
           src={song.albumArtUrl}
@@ -109,27 +133,29 @@ export default function Card({ song, active, onSwipe }: Props) {
         />
       )}
 
-      {/* Gradient overlay */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%)' }} />
-
-      {/* Hidden YouTube player container */}
+      {/* 2. YouTube IFrame 컨테이너 — 영상이 앨범아트 위를 덮음 */}
       {song.youtubeVideoId && active && (
         <div
           ref={containerRef}
           style={{
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: 1,
-            height: 1,
+            inset: 0,
             overflow: 'hidden',
-            opacity: 0,
             pointerEvents: 'none',
           }}
         />
       )}
 
-      {/* Like badge */}
+      {/* 3. 그라디언트 오버레이 — 영상 위에 입혀 가독성 확보 */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%)',
+        }}
+      />
+
+      {/* 4. LIKE / NOPE 배지 */}
       {active && (
         <motion.div
           style={{
@@ -155,8 +181,6 @@ export default function Card({ song, active, onSwipe }: Props) {
           </span>
         </motion.div>
       )}
-
-      {/* Dislike badge */}
       {active && (
         <motion.div
           style={{
@@ -183,7 +207,7 @@ export default function Card({ song, active, onSwipe }: Props) {
         </motion.div>
       )}
 
-      {/* Mute toggle */}
+      {/* 5. 뮤트 토글 */}
       {song.youtubeVideoId && active && (
         <button
           onClick={toggleMute}
@@ -200,13 +224,14 @@ export default function Card({ song, active, onSwipe }: Props) {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 16,
+            zIndex: 1,
           }}
         >
           {isMuted ? '🔇' : '🔊'}
         </button>
       )}
 
-      {/* Song info */}
+      {/* 6. 곡 정보 */}
       <div
         style={{
           position: 'absolute',
@@ -216,33 +241,63 @@ export default function Card({ song, active, onSwipe }: Props) {
           padding: 'var(--space-lg)',
         }}
       >
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-headline-md)', fontWeight: 'var(--weight-bold)', color: '#fff', marginBottom: 'var(--space-xs)' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-headline-md)',
+            fontWeight: 'var(--weight-bold)',
+            color: '#fff',
+            marginBottom: 'var(--space-xs)',
+          }}
+        >
           {song.title}
         </p>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-body-sm)', color: 'rgba(255,255,255,0.7)', marginBottom: 'var(--space-sm)' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-body-sm)',
+            color: 'rgba(255,255,255,0.7)',
+            marginBottom: 'var(--space-sm)',
+          }}
+        >
           {song.artist}
         </p>
-        {song.genres && song.genres.length > 0 && (
-          <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap' }}>
-            {song.genres.slice(0, 3).map((g) => (
-              <span
-                key={g}
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-label-caps)',
-                  fontWeight: 'var(--weight-bold)',
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-on-surface-variant)',
-                  background: 'rgba(0,0,0,0.4)',
-                  padding: '2px var(--space-sm)',
-                  borderRadius: 'var(--radius-full)',
-                }}
-              >
-                {g}
-              </span>
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-sm)' }}>
+          {song.genres && song.genres.length > 0 && (
+            <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap' }}>
+              {song.genres.slice(0, 3).map((g) => (
+                <span
+                  key={g}
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--text-label-caps)',
+                    fontWeight: 'var(--weight-bold)',
+                    letterSpacing: '0.08em',
+                    color: 'var(--color-on-surface-variant)',
+                    background: 'rgba(0,0,0,0.4)',
+                    padding: '2px var(--space-sm)',
+                    borderRadius: 'var(--radius-full)',
+                  }}
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+          {song.ytViews != null && (
+            <span
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-body-sm)',
+                color: 'rgba(255,255,255,0.5)',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              ▶ {formatViews(song.ytViews)}
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   )

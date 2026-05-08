@@ -15,7 +15,6 @@ const mockSongs: Song[] = [
     title: 'Hummingbird',
     artist: 'Local Natives',
     albumArtUrl: 'https://picsum.photos/seed/song1/400/400',
-    youtubeVideoId: 'dQw4w9WgXcQ',
     genres: ['인디록', '얼터너티브'],
   },
   {
@@ -23,7 +22,6 @@ const mockSongs: Song[] = [
     title: 'Holocene',
     artist: 'Bon Iver',
     albumArtUrl: 'https://picsum.photos/seed/song2/400/400',
-    youtubeVideoId: 'dQw4w9WgXcQ',
     genres: ['인디팝', '포크'],
   },
   {
@@ -31,7 +29,6 @@ const mockSongs: Song[] = [
     title: 'Motion Picture Soundtrack',
     artist: 'Radiohead',
     albumArtUrl: 'https://picsum.photos/seed/song3/400/400',
-    youtubeVideoId: 'dQw4w9WgXcQ',
     genres: ['얼터너티브', '포스트록'],
   },
 ]

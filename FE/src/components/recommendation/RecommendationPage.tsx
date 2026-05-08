@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getRecommendations, postReaction } from '@/api'
+import { resolveYouTubeId } from '@/utils/resolveYouTubeId'
 import type { Song } from '@/types'
 import CardStack, { CardStackSkeleton } from './CardStack'
 import ActionButtons from './ActionButtons'
@@ -15,7 +16,22 @@ export default function RecommendationPage() {
 
   useEffect(() => {
     getRecommendations()
-      .then((r) => setSongs(r.data))
+      .then((r) => {
+        setSongs(r.data)
+        r.data.forEach(async (song) => {
+          if (song.youtubeVideoId) return
+          const info = await resolveYouTubeId(song.title, song.artist)
+          if (info.videoId) {
+            setSongs((prev) =>
+              prev.map((s) =>
+                s.id === song.id
+                  ? { ...s, youtubeVideoId: info.videoId!, ytViews: info.views ?? undefined }
+                  : s
+              )
+            )
+          }
+        })
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])

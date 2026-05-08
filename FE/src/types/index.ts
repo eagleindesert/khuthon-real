@@ -13,6 +13,7 @@ export interface Song {
   artist: string
   albumArtUrl?: string
   youtubeVideoId?: string
+  ytViews?: number
   genres: string[]
   durationSeconds?: number
   likeCount?: number
