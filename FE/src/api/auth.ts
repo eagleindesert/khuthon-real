@@ -2,27 +2,22 @@ import { apiClient } from './client'
 import type { User } from '@/types'
 
 export interface LoginRequest {
-  username: string
+  loginId: string
   password: string
 }
 
-export interface LoginResponse {
-  accessToken: string
-  user: User
-}
-
-export interface SignUpRequest {
-  username: string
+export interface RegisterRequest {
+  loginId: string
   password: string
   nickname: string
-  tags: string[]
+  preferredGenre: string
 }
 
 export const login = (data: LoginRequest) =>
-  apiClient.post<LoginResponse>('/auth/login', data)
+  apiClient.post<User>('/auth/login', data)
 
-export const signUp = (data: SignUpRequest) =>
-  apiClient.post<{ user: User }>('/auth/signup', data)
+export const signUp = (data: RegisterRequest) =>
+  apiClient.post<User>('/auth/register', data)
 
 export const getMe = () =>
   apiClient.get<User>('/auth/me')

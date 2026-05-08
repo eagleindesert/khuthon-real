@@ -128,7 +128,7 @@ export default function CommentModal({ open, songId, onClose }: Props) {
       <CommentList
         comments={comments}
         loading={loading}
-        currentUserId={currentUser?.id}
+        currentUserId={currentUser?.userId}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

@@ -1,10 +1,9 @@
 export interface User {
-  id: number
-  username: string
+  userId: number
+  loginId: string
   nickname: string
-  tags: string[]
-  avatarUrl?: string
-  createdAt: string
+  preferredGenre: string
+  tags?: string[]
 }
 
 export interface Song {
