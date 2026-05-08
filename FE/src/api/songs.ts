@@ -3,16 +3,26 @@ import type { Song } from '@/types'
 
 export type ReactionType = 'like' | 'dislike'
 
+export const GENRES = [
+  'Korean Indie',
+  'Underground Hiphop 한국',
+  'Korean R&B',
+  'Korean Rock',
+] as const
+
+export type Genre = typeof GENRES[number]
+
 interface TrackInfo {
-  artist: string
+  songId: number
   title: string
+  artist: string
   genre: string
 }
 
-export const refreshTracks = async (): Promise<Song[]> => {
-  const res = await apiClient.post<TrackInfo[]>('/refresh')
-  return res.data.map((t, i) => ({
-    id: i,
+export const getList = async (genre: Genre): Promise<Song[]> => {
+  const res = await apiClient.get<TrackInfo[]>('/list', { params: { genre } })
+  return res.data.map((t) => ({
+    id: t.songId,
     title: t.title,
     artist: t.artist,
     genres: [t.genre],
