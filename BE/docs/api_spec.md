@@ -180,7 +180,67 @@
 
 ---
 
-## 4. 데이터 관리 (Admin/Internal)
+## 4. 댓글 (Comments)
+
+### 특정 곡의 댓글 목록 조회
+해당 곡에 달린 댓글을 최신순으로 반환합니다.
+
+- **URL**: `/api/songs/{songId}/comments`
+- **Method**: `GET`
+- **인증 필요**: NO
+- **Path Parameters**:
+  | 파라미터 | 타입 | 설명 |
+  | :--- | :--- | :--- |
+  | `songId` | `Long` | 곡 고유 ID |
+- **Response**: `200 OK`
+  ```json
+  [
+    {
+      "commentId": 12,
+      "nickname": "인디덕후",
+      "preferredGenre": "힙합커뮤",
+      "content": "이 곡 진짜 숨은 명곡이다",
+      "createdAt": "2026-05-09T06:45:00"
+    },
+    ...
+  ]
+  ```
+- **에러**:
+  - `400 Bad Request`: 존재하지 않는 곡 ID인 경우.
+
+### 댓글 작성
+로그인한 사용자가 특정 곡에 댓글을 작성합니다.
+
+- **URL**: `/api/songs/{songId}/comments`
+- **Method**: `POST`
+- **인증 필요**: YES (JSESSIONID 쿠키)
+- **Path Parameters**:
+  | 파라미터 | 타입 | 설명 |
+  | :--- | :--- | :--- |
+  | `songId` | `Long` | 곡 고유 ID |
+- **Request Body**:
+  ```json
+  {
+    "content": "이 곡 진짜 숨은 명곡이다"
+  }
+  ```
+- **Response**: `201 Created`
+  ```json
+  {
+    "commentId": 12,
+    "nickname": "인디덕후",
+    "preferredGenre": "힙합커뮤",
+    "content": "이 곡 진짜 숨은 명곡이다",
+    "createdAt": "2026-05-09T06:45:00"
+  }
+  ```
+- **에러**:
+  - `400 Bad Request`: 존재하지 않는 곡 ID이거나 내용이 비어있는 경우.
+  - `401 Unauthorized`: 로그인하지 않은 경우.
+
+---
+
+## 5. 데이터 관리 (Admin/Internal)
 
 ### 트랙 데이터 갱신
 Spotify API에서 최신 트랙 정보를 가져와 DB를 갱신합니다. (기존 곡 데이터는 삭제 후 재구축됨)
@@ -229,6 +289,15 @@ Spotify API에서 최신 트랙 정보를 가져와 DB를 갱신합니다. (기�
 | `artist` | `String` | 아티스트 이름 |
 | `genre` | `String` | 장르 이름 |
 | `likeCount` | `long` | 해당 커뮤니티의 추천 수 |
+
+### CommentResponse
+| 필드명 | 타입 | 설명 |
+| :--- | :--- | :--- |
+| `commentId` | `Long` | 댓글 고유 ID |
+| `nickname` | `String` | 작성자 닉네임 |
+| `preferredGenre` | `String` | 작성자의 커뮤니티 그룹 |
+| `content` | `String` | 댓글 내용 (최대 500자) |
+| `createdAt` | `LocalDateTime` | 작성 시각 |
 
 ### TrackInfo
 | 필드명 | 타입 | 설명 |

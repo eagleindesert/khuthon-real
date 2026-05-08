@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS song_reaction (
     created_at    TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
+-- ------------------------------------------------------------
+-- 7. COMMENT  (song + user 참조)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS comment (
+    comment_id BIGSERIAL PRIMARY KEY,
+    song_id    BIGINT       NOT NULL REFERENCES song(song_id)     ON DELETE CASCADE,
+    user_id    BIGINT       NOT NULL REFERENCES "user"(user_id)   ON DELETE CASCADE,
+    content    VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
 -- ============================================================
 -- 인덱스 (선택적 성능 최적화)
 -- ============================================================
@@ -78,3 +89,4 @@ CREATE INDEX IF NOT EXISTS idx_song_genre        ON song(genre_id);
 CREATE INDEX IF NOT EXISTS idx_reaction_user     ON song_reaction(user_id);
 CREATE INDEX IF NOT EXISTS idx_reaction_song     ON song_reaction(song_id);
 CREATE INDEX IF NOT EXISTS idx_ugp_genre         ON user_genre_preference(genre_id);
+CREATE INDEX IF NOT EXISTS idx_comment_song      ON comment(song_id);
