@@ -1,73 +1,55 @@
-# React + TypeScript + Vite
+# YouTube 플레이어 프론트엔드
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+YouTube URL을 입력하면 하단에서 영상을 재생하는 웹 프론트엔드입니다.
 
-Currently, two official plugins are available:
+**스택:** React + TypeScript + Vite
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 시작하기
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. 의존성 설치
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd FE
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. 개발 서버 실행
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+브라우저에서 `http://localhost:5173` 접속
+
+### 3. 프로덕션 빌드
+
+```bash
+npm run build
+```
+
+빌드 결과물은 `dist/` 폴더에 생성됩니다.
+
+### 4. 빌드 결과물 미리보기
+
+```bash
+npm run preview
+```
+
+---
+
+## 사용법
+
+1. 입력창에 YouTube URL을 붙여넣습니다.
+2. **재생** 버튼을 클릭하거나 **Enter** 키를 누릅니다.
+3. 하단에 영상이 임베드되어 자동 재생됩니다.
+
+### 지원하는 URL 형식
+
+| 형식 | 예시 |
+|------|------|
+| 일반 영상 | `https://www.youtube.com/watch?v=VIDEO_ID` |
+| 단축 URL | `https://youtu.be/VIDEO_ID` |
+| Shorts | `https://www.youtube.com/shorts/VIDEO_ID` |
+| 임베드 | `https://www.youtube.com/embed/VIDEO_ID` |
