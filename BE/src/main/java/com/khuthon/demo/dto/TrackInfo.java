@@ -1,7 +1,7 @@
 package com.khuthon.demo.dto;
 
 public record TrackInfo(
-    String artistName,
-    String trackName,
-    String genre
-) {}
+        String artist,
+        String title,
+        String genre) {
+}
