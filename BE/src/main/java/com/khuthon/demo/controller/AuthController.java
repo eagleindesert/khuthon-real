@@ -24,7 +24,8 @@ public class AuthController {
     /**
      * 회원가입
      * POST /api/auth/register
-     * Body: { "loginId": "...", "password": "...", "nickname": "...", "preferredGenre": "..." }
+     * Body: { "loginId": "...", "password": "...", "nickname": "...",
+     * "preferredGenre": "..." }
      */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
@@ -40,7 +41,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request,
-                                               HttpSession session) {
+            HttpSession session) {
         UserResponse response = authService.login(request, session);
         return ResponseEntity.ok(response);
     }
