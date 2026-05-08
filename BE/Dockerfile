@@ -1,6 +1,4 @@
 # ── Stage 1: Build ──────────────────────────────────────────────
-# Gradle 이미지 대신 JDK만 있는 이미지를 사용하고,
-# 프로젝트의 gradlew(Wrapper)로 빌드 → gradle-wrapper.properties의 버전(9.4.1) 자동 사용
 FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
@@ -18,7 +16,8 @@ COPY src ./src
 RUN ./gradlew bootJar --no-daemon -x test
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────
-FROM eclipse-temurin:17-jre-alpine
+# ARM64를 완벽하게 지원하는 Ubuntu 기반 JRE 이미지 사용
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
