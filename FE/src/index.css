@@ -1,13 +1,125 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500&display=swap');
+
+:root {
+  /* Surface colors */
+  --color-surface:                   #121414;
+  --color-surface-dim:               #121414;
+  --color-surface-bright:            #37393a;
+  --color-surface-container-lowest:  #0c0f0f;
+  --color-surface-container-low:     #1a1c1c;
+  --color-surface-container:         #1e2020;
+  --color-surface-container-high:    #282a2b;
+  --color-surface-container-highest: #333535;
+
+  /* Text on surface */
+  --color-on-surface:         #e2e2e2;
+  --color-on-surface-variant: #bccbb9;
+  --color-inverse-surface:    #e2e2e2;
+  --color-inverse-on-surface: #2f3131;
+
+  /* Outline */
+  --color-outline:         #869585;
+  --color-outline-variant: #3d4a3d;
+
+  /* Primary (Sonic Green) */
+  --color-primary:           #53e076;
+  --color-on-primary:        #003914;
+  --color-primary-container: #1db954;
+
+  /* Secondary */
+  --color-secondary:           #c8c6c5;
+  --color-on-secondary:        #313030;
+  --color-secondary-container: #4a4949;
+
+  /* Error */
+  --color-error:           #ffb4ab;
+  --color-on-error:        #690005;
+  --color-error-container: #93000a;
+
+  /* Background */
+  --color-background:    #121414;
+  --color-on-background: #e2e2e2;
+
+  /* Fonts */
+  --font-display: 'Montserrat', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+
+  /* Type scale */
+  --text-display-lg:  6rem;
+  --text-headline-lg: 2rem;
+  --text-headline-md: 1.5rem;
+  --text-label-caps:  0.75rem;
+  --text-body-lg:     1rem;
+  --text-body-sm:     0.875rem;
+
+  /* Font weights */
+  --weight-black:  900;
+  --weight-bold:   700;
+  --weight-medium: 500;
+  --weight-normal: 400;
+
+  /* Spacing (4px unit) */
+  --space-xs:     4px;
+  --space-sm:     8px;
+  --space-md:     16px;
+  --space-lg:     24px;
+  --space-xl:     32px;
+  --space-xxl:    48px;
+  --space-gutter: 24px;
+  --space-margin: 32px;
+
+  /* Border radius */
+  --radius-sm:   0.25rem;
+  --radius:      0.5rem;
+  --radius-md:   0.75rem;
+  --radius-lg:   1rem;
+  --radius-xl:   1.5rem;
+  --radius-full: 9999px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  margin: 0;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  font-weight: var(--weight-medium);
+  min-height: 100dvh;
+  max-width: 430px;
+  margin-inline: auto;
+  overflow-x: hidden;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
 }

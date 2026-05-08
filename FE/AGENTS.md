@@ -1,100 +1,87 @@
-# FE 컨텍스트
+# FE — Agent Context
 
-## 개요
-YouTube URL을 입력하면 하단에서 영상을 재생하는 웹 프론트엔드.
-YouTube IFrame Player API를 사용한 커스텀 컨트롤 바(재생/정지, 탐색바, 볼륨)를 제공한다.
+## 프로젝트 개요
+마이너 씬 명곡 발굴 앱 (Track 1: 팬덤 검증 픽).
+React 19 + Vite + TypeScript SPA. 백엔드: Spring Boot 4.0.6 (`localhost:8080`).
+모바일 우선 (360px 기준), max-width 430px.
 
-## 스택
-- React 18 + TypeScript + Vite
-- 외부 라이브러리: `@types/youtube` (dev)
-- 별도 UI 라이브러리 없음
+## 기술 스택
+- React 19.2.5 + TypeScript 6 (erasableSyntaxOnly, noUnusedLocals)
+- React Router v7 (v6 API 동일)
+- framer-motion v12 — `import { motion, AnimatePresence } from 'framer-motion'`
+- axios — `/api/*` prefix, Vite proxy → `localhost:8080`
+- MSW v2 — DEV 환경에서만 활성화 (`import.meta.env.DEV`)
+- Docker: `Dockerfile.dev` (Node 20 alpine), 루트 `docker-compose.yml`
 
-## 실행
-```bash
-cd FE
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # dist/ 생성
+## TypeScript 제약
+- `erasableSyntaxOnly: true` → `enum` 금지, `const` 객체 or `type` 사용
+- `noUnusedLocals/Parameters: true` → 미사용 import 즉시 제거
+- `verbatimModuleSyntax: true` → type import는 `import type` 필수
+
+## 디렉터리 구조
+```
+src/
+  api/            client.ts (axios+interceptors), auth.ts, songs.ts, comments.ts, index.ts
+  components/
+    common/       Toast, BottomSheet, ActionSheet, ConfirmDialog, Skeleton
+    auth/         LoginPage, SignUpWizard (Step1IdPw, Step2Nickname, Step3Tags)
+    recommendation/ RecommendationPage, CardStack, Card, ActionButtons, CompletionScreen
+    comment/      CommentModal, CommentList, CommentItem, CommentInput, InlineEditor
+    layout/       AuthGuard, MainLayout
+  contexts/       AuthContext, ToastContext
+  hooks/          useToast
+  mocks/          handlers.ts (MSW), browser.ts
+  routes/         index.tsx
+  types/          index.ts (User, Song, Comment, PagedResponse)
+  utils/          sceneTags.ts, youtubeApi.ts
+  App.tsx         BrowserRouter > AuthProvider > ToastProvider > AppRoutes
+  main.tsx        MSW enableMocking().then(render)
 ```
 
----
+## CSS 변수 (src/index.css)
+- `--color-surface: #121414` (앱 배경)
+- `--color-surface-container: #1e2020` (카드/모달 배경)
+- `--color-surface-container-high: #282a2b` (hover/input)
+- `--color-primary: #53e076` (CTA, 좋아요 active)
+- `--color-on-surface: #e2e2e2` (기본 텍스트)
+- `--color-on-surface-variant: #bccbb9` (보조 텍스트, 뱃지)
+- `--color-outline: #869585` (border, divider)
+- `--color-error: #ffb4ab` (에러 토스트, 삭제)
+- `--font-display: 'Montserrat'` / `--font-body: 'Plus Jakarta Sans'`
+- `--space-gutter: 24px` / `--radius-full: 9999px` (버튼 pill)
 
-## 파일 구조
+## 핵심 패턴
+- **AuthGuard**: `isLoading` 중 `null` → JWT hydration 깜박임 방지
+- **401 interceptor**: `window.location.href = '/login'` (컴포넌트 트리 밖)
+- **CardStack**: CommentModal이 열려도 unmount 안 됨 → YouTube iframe 음악 유지
+- **댓글 낙관적 UI**: temp id `temp-${Date.now()}` 즉시 추가, 성공 시 교체, 실패 시 롤백+토스트
+- **댓글 삭제 undo**: 즉시 UI 제거 → 5초 타이머 → "되돌리기" 클릭 시 타이머 취소
 
+## API 계약
 ```
-FE/
-├── src/
-│   ├── App.tsx                        # 루트: URL 입력 + YouTubePlayer 렌더
-│   ├── App.css                        # 다크 테마, 입력창/버튼 스타일
-│   ├── index.css                      # body/root 기본 리셋
-│   ├── main.tsx                       # React 진입점 (StrictMode 포함)
-│   ├── components/
-│   │   ├── YouTubePlayer.tsx          # IFrame API 플레이어 + 커스텀 컨트롤
-│   │   └── YouTubePlayer.css          # 플레이어/컨트롤 바 스타일
-│   └── utils/
-│       ├── youtube.ts                 # YouTube URL → videoId 파싱
-│       └── youtubeApi.ts              # IFrame API 스크립트 단일 로드 유틸
-```
-
----
-
-## 핵심 모듈 설명
-
-### `src/utils/youtube.ts`
-`extractVideoId(url)` — 아래 형식에서 videoId를 추출해 반환. 실패 시 `null`.
-- `youtube.com/watch?v=ID`
-- `youtu.be/ID`
-- `youtube.com/shorts/ID`
-- `youtube.com/embed/ID`
-
-### `src/utils/youtubeApi.ts`
-`loadYouTubeApi()` — `window.YT` 스크립트를 **딱 한 번만** 로드하는 모듈 레벨 promise 캐시.
-이미 로드됐거나 진행 중이면 동일 promise를 반환한다.
-
-### `src/components/YouTubePlayer.tsx`
-Props: `{ videoId: string }`
-
-**초기화 방식 — StrictMode 이중 실행 대응이 핵심:**
-- `containerRef`(React div)에 `playerDiv`를 **명령형으로** `appendChild`해서 React 재조정과 분리한다.
-- `destroyed` 플래그로 cleanup 이후 비동기 `.then()` 실행을 차단한다.
-- 이 패턴을 바꾸면 StrictMode 개발 환경에서 플레이어가 이중 생성돼 동작하지 않는다.
-
-```
-useEffect([], []) 
-  └─ loadYouTubeApi().then()
-       └─ destroyed 체크 → new YT.Player(playerDiv, { controls: 0, ... })
-            ├─ onReady: isReadyRef = true, duration/volume 초기화
-            └─ onStateChange: isPlaying/duration 상태 갱신, 500ms interval로 currentTime 추적
+POST /api/auth/login         { username, password } → { accessToken, user }
+POST /api/auth/signup        { username, password, nickname, tags[] }
+GET  /api/auth/me            → User
+GET  /api/recommendations    → Song[]
+POST /api/songs/:id/reactions { type: 'like'|'dislike' }
+GET  /api/songs/:id/comments  → { items: Comment[], hasNext }
+POST /api/songs/:id/comments  { text } → Comment
+PUT  /api/comments/:id        { text } → Comment
+DELETE /api/comments/:id
 ```
 
-**영상 교체:** videoId prop 변경 시 `isReadyRef.current` 확인 후 `player.loadVideoById(videoId)` 호출.
+## 구현 상태
+- [x] Step 1: 프로젝트 셋업 (Vite+TS, axios, AuthContext, MSW, Router, Docker)
+- [x] Step 2: 공용 컴포넌트 (BottomSheet, ActionSheet, ConfirmDialog, Toast, Skeleton)
+- [x] Step 3: 인증 플로우 (LoginPage, SignUpWizard 3단계)
+- [x] Step 4: 추천 페이지 (CardStack, Card, YouTube embed)
+- [x] Step 5: 댓글 모달 (낙관적 UI)
+- [x] Step 6: 본인 댓글 관리 (InlineEditor, undo 토스트)
+- [x] Step 7: 엣지 케이스 (스켈레톤, 빈 상태, 임시저장)
 
-**컨트롤:**
-- 재생/정지: `playVideo()` / `pauseVideo()`
-- 탐색바: `seekTo(time, true)` + `linear-gradient` inline style로 진행률 표시
-- 볼륨: `setVolume(vol)`
-
-### `src/App.tsx`
-- `inputUrl` state → `extractVideoId()` → `videoId` state
-- `videoId`가 있을 때만 `<YouTubePlayer videoId={videoId} />` 렌더
-- Enter 키 / 재생 버튼 모두 지원
-
----
-
-## 주요 설계 결정 및 주의사항
-
-### StrictMode 이중 실행 문제 (해결됨)
-React 18 StrictMode는 개발 모드에서 effect를 2회 실행한다.
-`new YT.Player(id, ...)` 는 대상 div를 iframe으로 교체하는데, 첫 번째 실행이 교체한 뒤
-두 번째 실행이 같은 ID로 접근하면 플레이어가 깨진다.
-→ `playerDiv`를 명령형 생성 + `destroyed` 플래그로 해결. 이 구조를 반드시 유지할 것.
-
-### playerVars
-```ts
-{ controls: 0, rel: 0, modestbranding: 1, iv_load_policy: 3 }
-```
-`controls: 0` 으로 YouTube 기본 컨트롤을 숨기고 커스텀 컨트롤만 노출한다.
-
-### 탐색바 진행률
-별도 레이어 대신 `input[type=range]`에 `linear-gradient` inline style을 직접 적용.
-복잡한 z-index/pointer-events 구조를 피하기 위한 선택이다.
+## 주의사항
+- `Song.youtubeVideoId` optional — 백엔드와 필드명 미확정
+- 씬 태그: `src/utils/sceneTags.ts`에 하드코딩 (20개)
+- YouTube IFrame API: `src/utils/youtubeApi.ts` 싱글턴 로더
+  - StrictMode 대응: `playerDiv` 명령형 생성 + `destroyed` 플래그
+- Docker `VITE_PROXY_TARGET` 환경변수로 호스트/컨테이너 이중 대응
