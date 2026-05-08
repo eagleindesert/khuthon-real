@@ -20,9 +20,11 @@ public class FandomPickService {
         private final GenreRepository genreRepository;
 
         // 기본 장르 하드코딩!
-        // 4개만!
+        // 8개만!
         private static final List<String> QUERIES = Arrays.asList(
-                        "Korean Indie", "Underground Hiphop 한국", "Korean R&B", "Korean Rock");
+                        "Korean Indie", "Underground Hiphop 한국", "Korean R&B", "Korean Rock", "Korean Jazz",
+                        "Korean Traditional Gugak",
+                        "Korean Trot", "Korean Retro");
 
         public FandomPickService(SpotifyService spotifyService,
                         SongRepository songRepository,
