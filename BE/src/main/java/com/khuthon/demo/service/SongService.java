@@ -1,8 +1,10 @@
 package com.khuthon.demo.service;
 
+import com.khuthon.demo.dto.RankedSongResponse;
 import com.khuthon.demo.dto.SongResponse;
 import com.khuthon.demo.entity.Song;
 import com.khuthon.demo.repository.SongRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,30 @@ public class SongService {
             songs = songRepository.findAll();
         }
 
+        return toResponseList(songs);
+    }
+
+    /**
+     * 커뮤니티 그룹(preferred_genre)의 좋아요 수 기준으로 음악 장르(genre)의 곡 랭킹을 반환합니다.
+     * 예) preferred_genre=힙합커뮤, genre=Korean Indie → 힙합커뮤가 많이 좋아한 인디 곡 순서
+     */
+    @Transactional(readOnly = true)
+    public List<RankedSongResponse> getRanks(String preferredGenre, String genre) {
+        // 커뮤니티 그룹에 따라 정렬 기준 컬럼 결정
+        String sortColumn = switch (preferredGenre) {
+            case "힙합커뮤" -> "hiphopLikeCount";
+            case "밴드커뮤" -> "bandLikeCount";
+            case "일반인"   -> "generalLikeCount";
+            default -> throw new IllegalArgumentException("알 수 없는 그룹: " + preferredGenre);
+        };
+
+        Sort sort = Sort.by(Sort.Direction.DESC, sortColumn);
+        List<Song> songs = songRepository.findByGenre_Name(genre, sort);
+
+        return toRankedResponseList(songs, preferredGenre);
+    }
+
+    private List<SongResponse> toResponseList(List<Song> songs) {
         return songs.stream()
                 .map(s -> new SongResponse(
                         s.getSongId(),
@@ -49,5 +75,27 @@ public class SongService {
                         s.getArtist(),
                         s.getGenre().getName()))
                 .collect(Collectors.toList());
+    }
+
+    private List<RankedSongResponse> toRankedResponseList(List<Song> songs, String preferredGenre) {
+        var result = new java.util.ArrayList<RankedSongResponse>();
+        for (int i = 0; i < songs.size(); i++) {
+            Song s = songs.get(i);
+            long likeCount = switch (preferredGenre) {
+                case "힙합커뮤" -> s.getHiphopLikeCount();
+                case "밴드커뮤" -> s.getBandLikeCount();
+                case "일반인"   -> s.getGeneralLikeCount();
+                default -> 0L;
+            };
+            result.add(new RankedSongResponse(
+                    i + 1,              // rank (1-based)
+                    s.getSongId(),
+                    s.getTitle(),
+                    s.getArtist(),
+                    s.getGenre().getName(),
+                    likeCount           // 해당 커뮤니티 추천 수
+            ));
+        }
+        return result;
     }
 }
