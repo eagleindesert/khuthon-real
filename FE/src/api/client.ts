@@ -13,7 +13,10 @@ apiClient.interceptors.response.use(
   (res) => res,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      window.location.href = '/login'
+      const { pathname } = window.location
+      if (pathname !== '/login' && pathname !== '/signup') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
