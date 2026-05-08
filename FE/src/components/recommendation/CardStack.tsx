@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import type { Song } from '@/types'
 import Card from './Card'
 import Skeleton from '@/components/common/Skeleton'
@@ -5,9 +6,10 @@ import Skeleton from '@/components/common/Skeleton'
 interface Props {
   current: Song
   next?: Song
+  onSwipe: (direction: 'like' | 'dislike') => void
 }
 
-export default function CardStack({ current, next }: Props) {
+export default function CardStack({ current, next, onSwipe }: Props) {
   return (
     <div style={{ position: 'relative', padding: '0 var(--space-gutter)' }}>
       {/* Next card (behind, slightly scaled down) */}
@@ -20,7 +22,7 @@ export default function CardStack({ current, next }: Props) {
             top: 8,
             borderRadius: 'var(--radius-xl)',
             overflow: 'hidden',
-            opacity: 0.5,
+            opacity: 0.6,
             pointerEvents: 'none',
           }}
         >
@@ -28,8 +30,15 @@ export default function CardStack({ current, next }: Props) {
         </div>
       )}
 
-      {/* Current card */}
-      <Card song={current} active />
+      {/* Current card — key triggers spring entry on each new song */}
+      <motion.div
+        key={current.id}
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+      >
+        <Card song={current} active onSwipe={onSwipe} />
+      </motion.div>
     </div>
   )
 }
