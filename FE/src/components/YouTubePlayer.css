@@ -1,0 +1,162 @@
+.yt-wrapper {
+  margin-top: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.yt-video {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+
+.yt-video > div,
+.yt-video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
+/* Controls bar */
+.yt-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #181818;
+}
+
+/* Play / Pause button */
+.yt-play-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.yt-play-btn:hover:not(:disabled) {
+  color: #ff0000;
+}
+
+.yt-play-btn:disabled {
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* Time display */
+.yt-time {
+  font-size: 0.8rem;
+  color: #aaa;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: center;
+}
+
+/* Seek bar */
+.yt-seek-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+.yt-seek-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.yt-seek-progress {
+  height: 100%;
+  background: #ff0000;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.yt-seek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  height: 16px;
+  margin: 0;
+}
+
+.yt-seek-wrapper:hover .yt-seek-track {
+  height: 6px;
+}
+
+.yt-seek-wrapper:hover .yt-seek-progress {
+  height: 6px;
+}
+
+/* Volume group */
+.yt-volume-group {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.yt-volume-icon {
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.yt-volume {
+  width: 72px;
+  cursor: pointer;
+}
+
+/* Range input base */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: #444;
+  outline: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  background: #ff0000;
+  transform: scale(1.2);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: none;
+}
