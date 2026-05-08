@@ -18,8 +18,11 @@ public class RefreshController {
         this.fandomPickService = fandomPickService;
     }
 
+    /**
+     * Spotify API에서 트랙을 조회하고 PostgreSQL에 저장한 뒤 결과를 반환합니다.
+     */
     @PostMapping("/refresh")
     public List<TrackInfo> refresh() {
-        return fandomPickService.getFandomPicks();
+        return fandomPickService.refreshAndSave();
     }
 }
