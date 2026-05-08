@@ -13,7 +13,8 @@ $builderName = "khuthon-builder"
 if (-not (docker buildx ls | Select-String $builderName)) {
     Write-Host "새로운 buildx 빌더($builderName) 생성 중..."
     docker buildx create --name $builderName --use
-} else {
+}
+else {
     docker buildx use $builderName
 }
 
