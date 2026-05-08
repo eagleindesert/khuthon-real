@@ -31,3 +31,17 @@ export const getList = async (genre: Genre): Promise<Song[]> => {
 
 export const postReaction = (songId: number, type: ReactionType) =>
   apiClient.post(`/songs/${songId}/reactions`, { type })
+
+export interface RankedSong {
+  rank: number
+  songId: number
+  title: string
+  artist: string
+  genre: string
+  likeCount: number
+}
+
+export const getRanks = async (preferredGenre: string, genre: Genre): Promise<RankedSong[]> => {
+  const res = await apiClient.get<RankedSong[]>('/list/ranks', { params: { preferredGenre, genre } })
+  return res.data
+}

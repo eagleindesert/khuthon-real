@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getList, postReaction, GENRES } from '@/api'
 import type { Genre } from '@/api'
 import { resolveYouTubeId } from '@/utils/resolveYouTubeId'
@@ -15,6 +16,7 @@ export default function RecommendationPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [showHint, setShowHint] = useState(false)
 
   const loadSongs = useCallback((g: Genre) => {
     setGenre(g)
@@ -22,6 +24,7 @@ export default function RecommendationPage() {
     setSongs([])
     setError(false)
     setLoading(true)
+    setShowHint(true)
     getList(g)
       .then((list) => {
         setSongs(list)
@@ -41,6 +44,12 @@ export default function RecommendationPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (!showHint) return
+    const t = setTimeout(() => setShowHint(false), 2200)
+    return () => clearTimeout(t)
+  }, [showHint])
 
   const react = async (type: 'like' | 'dislike') => {
     const song = songs[idx]
@@ -132,6 +141,7 @@ export default function RecommendationPage() {
     <>
       <div
         style={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
@@ -149,6 +159,51 @@ export default function RecommendationPage() {
           onComment={() => setModalOpen(true)}
           onLike={() => react('like')}
         />
+
+        <AnimatePresence>
+          {showHint && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                position: 'absolute',
+                bottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
+                left: 0,
+                right: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 20,
+                  background: 'rgba(0,0,0,0.62)',
+                  backdropFilter: 'blur(8px)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '10px 24px',
+                }}
+              >
+                <span style={{ fontSize: 20 }}>←</span>
+                <span
+                  style={{
+                    color: '#fff',
+                    fontSize: 'var(--text-body-sm)',
+                    fontFamily: 'var(--font-body)',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  스와이프해서 곡을 선택하세요
+                </span>
+                <span style={{ fontSize: 20 }}>→</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <CommentModal

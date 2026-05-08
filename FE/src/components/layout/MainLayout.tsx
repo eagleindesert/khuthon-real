@@ -17,6 +17,7 @@ export default function MainLayout() {
         }}
       >
         <TabItem to="/discover" label="발견" icon="🎵" />
+        <TabItem to="/ranking" label="랭킹" icon="🏆" />
         <TabItem to="/me" label="내 정보" icon="👤" />
       </nav>
     </div>

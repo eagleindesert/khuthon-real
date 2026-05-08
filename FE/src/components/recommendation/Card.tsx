@@ -160,13 +160,13 @@ export default function Card({ song, active, onSwipe }: Props) {
         <motion.div
           style={{
             position: 'absolute',
-            top: 'var(--space-xl)',
+            top: '30%',
             left: 'var(--space-lg)',
-            border: '5px solid var(--color-primary)',
-            borderRadius: 10,
-            padding: '6px 18px',
+            border: '6px solid var(--color-primary)',
+            borderRadius: 12,
+            padding: '10px 22px',
             background: 'rgba(83,224,118,0.15)',
-            transform: 'rotate(-12deg)',
+            transform: 'rotate(-15deg)',
             opacity: likeOpacity,
           }}
         >
@@ -175,9 +175,9 @@ export default function Card({ song, active, onSwipe }: Props) {
               color: 'var(--color-primary)',
               fontFamily: 'var(--font-display)',
               fontWeight: 900,
-              fontSize: 32,
-              letterSpacing: 6,
-              textShadow: '0 0 12px rgba(83,224,118,0.5)',
+              fontSize: 48,
+              letterSpacing: 8,
+              textShadow: '0 0 16px rgba(83,224,118,0.7)',
             }}
           >
             LIKE
@@ -188,13 +188,13 @@ export default function Card({ song, active, onSwipe }: Props) {
         <motion.div
           style={{
             position: 'absolute',
-            top: 'var(--space-xl)',
+            top: '30%',
             right: 'var(--space-lg)',
-            border: '5px solid #ff5555',
-            borderRadius: 10,
-            padding: '6px 18px',
+            border: '6px solid #ff5555',
+            borderRadius: 12,
+            padding: '10px 22px',
             background: 'rgba(255,85,85,0.15)',
-            transform: 'rotate(12deg)',
+            transform: 'rotate(15deg)',
             opacity: dislikeOpacity,
           }}
         >
@@ -203,9 +203,9 @@ export default function Card({ song, active, onSwipe }: Props) {
               color: '#ff5555',
               fontFamily: 'var(--font-display)',
               fontWeight: 900,
-              fontSize: 32,
-              letterSpacing: 6,
-              textShadow: '0 0 12px rgba(255,85,85,0.5)',
+              fontSize: 48,
+              letterSpacing: 8,
+              textShadow: '0 0 16px rgba(255,85,85,0.7)',
             }}
           >
             NOPE
