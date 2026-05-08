@@ -106,8 +106,14 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
   )
 }
 
+function parseDate(iso: string): Date {
+  // BE가 타임존 없이 KST 시각을 반환하므로 +09:00 보정
+  if (iso.endsWith('Z') || iso.includes('+')) return new Date(iso)
+  return new Date(iso + '+09:00')
+}
+
 function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
+  const diff = Date.now() - parseDate(iso).getTime()
   const mins = Math.floor(diff / 60_000)
   if (mins < 1) return '방금'
   if (mins < 60) return `${mins}분 전`
