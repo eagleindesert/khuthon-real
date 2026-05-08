@@ -11,8 +11,8 @@
   height: 0;
 }
 
-.yt-video > div,
-.yt-video iframe {
+.yt-container,
+.yt-container iframe {
   position: absolute;
   top: 0;
   left: 0;
@@ -65,48 +65,9 @@
 }
 
 /* Seek bar */
-.yt-seek-wrapper {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 16px;
-}
-
-.yt-seek-track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: #444;
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-.yt-seek-progress {
-  height: 100%;
-  background: #ff0000;
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
 .yt-seek {
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  opacity: 0;
+  flex: 1;
   cursor: pointer;
-  height: 16px;
-  margin: 0;
-}
-
-.yt-seek-wrapper:hover .yt-seek-track {
-  height: 6px;
-}
-
-.yt-seek-wrapper:hover .yt-seek-progress {
-  height: 6px;
 }
 
 /* Volume group */
@@ -127,14 +88,18 @@
   cursor: pointer;
 }
 
-/* Range input base */
+/* Range input styling */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
   border-radius: 2px;
-  background: #444;
   outline: none;
+  transition: height 0.1s;
+}
+
+input[type='range']:hover {
+  height: 6px;
 }
 
 input[type='range']::-webkit-slider-thumb {
@@ -144,11 +109,10 @@ input[type='range']::-webkit-slider-thumb {
   border-radius: 50%;
   background: #fff;
   cursor: pointer;
-  transition: background 0.15s, transform 0.15s;
+  transition: transform 0.15s;
 }
 
 input[type='range']::-webkit-slider-thumb:hover {
-  background: #ff0000;
   transform: scale(1.2);
 }
 

@@ -8,7 +8,7 @@ interface Props {
 
 export default function YouTubePlayer({ videoId }: Props) {
   const playerRef = useRef<YT.Player | null>(null)
-  const playerIdRef = useRef(`yt-${Math.random().toString(36).slice(2)}`)
+  const containerRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isReadyRef = useRef(false)
 
@@ -19,8 +19,17 @@ export default function YouTubePlayer({ videoId }: Props) {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
+    if (!containerRef.current) return
+
+    // React 렌더 트리 바깥에서 div를 명령형으로 생성 — StrictMode 이중 실행 방어
+    const playerDiv = document.createElement('div')
+    containerRef.current.appendChild(playerDiv)
+    let destroyed = false
+
     loadYouTubeApi().then(() => {
-      playerRef.current = new YT.Player(playerIdRef.current, {
+      if (destroyed) return
+
+      playerRef.current = new YT.Player(playerDiv, {
         videoId,
         playerVars: { controls: 0, rel: 0, modestbranding: 1, iv_load_policy: 3 },
         events: {
@@ -49,10 +58,16 @@ export default function YouTubePlayer({ videoId }: Props) {
     })
 
     return () => {
+      destroyed = true
       stopTracking()
-      playerRef.current?.destroy()
-      playerRef.current = null
+      if (playerRef.current) {
+        playerRef.current.destroy()
+        playerRef.current = null
+      } else {
+        playerDiv.remove()
+      }
       isReadyRef.current = false
+      setIsReady(false)
     }
   }, [])
 
@@ -101,12 +116,12 @@ export default function YouTubePlayer({ videoId }: Props) {
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
-  const progress = duration ? (currentTime / duration) * 100 : 0
+  const progressPct = duration ? (currentTime / duration) * 100 : 0
 
   return (
     <div className="yt-wrapper">
       <div className="yt-video">
-        <div id={playerIdRef.current} />
+        <div ref={containerRef} className="yt-container" />
       </div>
 
       <div className="yt-controls">
@@ -125,20 +140,18 @@ export default function YouTubePlayer({ videoId }: Props) {
 
         <span className="yt-time">{formatTime(currentTime)}</span>
 
-        <div className="yt-seek-wrapper">
-          <div className="yt-seek-track">
-            <div className="yt-seek-progress" style={{ width: `${progress}%` }} />
-          </div>
-          <input
-            className="yt-seek"
-            type="range"
-            min={0}
-            max={duration || 1}
-            step={0.5}
-            value={currentTime}
-            onChange={handleSeek}
-          />
-        </div>
+        <input
+          className="yt-seek"
+          type="range"
+          min={0}
+          max={duration || 1}
+          step={0.5}
+          value={currentTime}
+          onChange={handleSeek}
+          style={{
+            background: `linear-gradient(to right, #ff0000 ${progressPct}%, #444 ${progressPct}%)`,
+          }}
+        />
 
         <span className="yt-time">{formatTime(duration)}</span>
 
@@ -153,6 +166,9 @@ export default function YouTubePlayer({ videoId }: Props) {
             max={100}
             value={volume}
             onChange={handleVolume}
+            style={{
+              background: `linear-gradient(to right, #fff ${volume}%, #444 ${volume}%)`,
+            }}
           />
         </div>
       </div>
