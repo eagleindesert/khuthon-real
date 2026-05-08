@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "user" (
     login_id        VARCHAR(100) NOT NULL UNIQUE,
     password_hash   VARCHAR(255) NOT NULL,
     nickname        VARCHAR(100) NOT NULL,
-    preferced_genre VARCHAR(100),          -- 스키마 원본 오타 유지
+    preferred_genre VARCHAR(100),          -- 스키마 원본 오타 수정함!! preferred!!
     created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
