@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 interface Props {
   onDislike: () => void
   onComment: () => void
@@ -42,9 +44,11 @@ function ActionBtn({
   'aria-label'?: string
 }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-label={ariaLabel}
+      whileTap={{ scale: 0.82 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 18 }}
       style={{
         width: size,
         height: size,
@@ -57,9 +61,10 @@ function ActionBtn({
         flexShrink: 0,
         border: primary ? 'none' : '1.5px solid var(--color-outline)',
         boxShadow: primary ? '0 4px 16px rgba(83,224,118,0.25)' : 'none',
+        cursor: 'pointer',
       }}
     >
       {children}
-    </button>
+    </motion.button>
   )
 }

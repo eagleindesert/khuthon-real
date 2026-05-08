@@ -68,7 +68,11 @@ export default function RecommendationPage() {
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        <CardStack current={songs[idx]} next={songs[idx + 1]} />
+        <CardStack
+          current={songs[idx]}
+          next={songs[idx + 1]}
+          onSwipe={(dir) => react(dir)}
+        />
         <ActionButtons
           onDislike={() => react('dislike')}
           onComment={() => setModalOpen(true)}
