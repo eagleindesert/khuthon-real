@@ -7,8 +7,8 @@ import InlineEditor from './InlineEditor'
 interface Props {
   comment: Comment
   isOwn: boolean
-  onEdit: (id: number, text: string) => Promise<void>
-  onDelete: (id: number) => void
+  onEdit: (commentId: number, text: string) => Promise<void>
+  onDelete: (commentId: number) => void
 }
 
 export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props) {
@@ -17,11 +17,11 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const handleSave = async (text: string) => {
-    await onEdit(comment.id, text)
+    await onEdit(comment.commentId, text)
     setEditing(false)
   }
 
-  const isPending = comment.id.toString().startsWith('temp-') || (comment as Comment & { pending?: boolean }).pending
+  const isPending = comment.pending
 
   return (
     <div
@@ -31,28 +31,25 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
         borderBottom: '1px solid var(--color-outline-variant)',
       }}
     >
-      {/* Header: 닉네임 + 씬태그 + 타임스탬프 */}
+      {/* Header: 닉네임 + 커뮤니티 + 타임스탬프 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', marginBottom: 'var(--space-xs)', flexWrap: 'wrap' }}>
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-body-sm)', fontWeight: 'var(--weight-bold)', color: 'var(--color-on-surface)' }}>
-          {comment.author.nickname}
+          {comment.nickname}
         </span>
-        {comment.author.tags?.slice(0, 2).map((tag) => (
-          <span
-            key={tag}
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 10,
-              fontWeight: 'var(--weight-bold)',
-              letterSpacing: '0.05em',
-              color: 'var(--color-on-surface-variant)',
-              background: 'var(--color-surface-container-high)',
-              padding: '1px 6px',
-              borderRadius: 'var(--radius-full)',
-            }}
-          >
-            {tag}
-          </span>
-        ))}
+        <span
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 10,
+            fontWeight: 'var(--weight-bold)',
+            letterSpacing: '0.05em',
+            color: 'var(--color-on-surface-variant)',
+            background: 'var(--color-surface-container-high)',
+            padding: '1px 6px',
+            borderRadius: 'var(--radius-full)',
+          }}
+        >
+          {comment.preferredGenre}
+        </span>
         <span style={{ fontSize: 11, color: 'var(--color-on-surface-variant)', marginLeft: 'auto' }}>
           {formatRelativeTime(comment.createdAt)}
         </span>
@@ -70,13 +67,13 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
       {/* Body */}
       {editing ? (
         <InlineEditor
-          initial={comment.body}
+          initial={comment.content}
           onSave={handleSave}
           onCancel={() => setEditing(false)}
         />
       ) : (
         <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-body-sm)', color: 'var(--color-on-surface)', lineHeight: 1.6 }}>
-          {comment.body}
+          {comment.content}
         </p>
       )}
 
@@ -102,7 +99,7 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
         message="댓글을 삭제하시겠어요?"
         confirmLabel="삭제"
         danger
-        onConfirm={() => { onDelete(comment.id); setConfirmingDelete(false) }}
+        onConfirm={() => { onDelete(comment.commentId); setConfirmingDelete(false) }}
         onCancel={() => setConfirmingDelete(false)}
       />
     </div>

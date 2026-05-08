@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { getRanks, GENRES } from '@/api'
+import { getComments } from '@/api'
 import type { Genre, RankedSong } from '@/api'
 import { useAuth } from '@/contexts/AuthContext'
+import CommentModal from '@/components/comment/CommentModal'
 
 const PREFERRED_GENRES = ['힙합커뮤', '밴드커뮤', '일반인'] as const
 type PreferredGenre = typeof PREFERRED_GENRES[number]
@@ -17,12 +19,26 @@ export default function RankingPage() {
   const [ranks, setRanks] = useState<RankedSong[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [selectedSongId, setSelectedSongId] = useState<number | null>(null)
+  const [commentCounts, setCommentCounts] = useState<Record<number, number>>({})
 
   useEffect(() => {
     setLoading(true)
     setError(false)
+    setCommentCounts({})
     getRanks(preferredGenre, genre)
-      .then(setRanks)
+      .then((list) => {
+        setRanks(list)
+        Promise.all(
+          list.map((item) =>
+            getComments(item.songId)
+              .then((r) => ({ songId: item.songId, count: r.data.length }))
+              .catch(() => ({ songId: item.songId, count: 0 }))
+          )
+        ).then((results) => {
+          setCommentCounts(Object.fromEntries(results.map((r) => [r.songId, r.count])))
+        })
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [preferredGenre, genre])
@@ -92,11 +108,27 @@ export default function RankingPage() {
         {!loading && !error && ranks.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
             {ranks.map((item) => (
-              <RankRow key={item.songId} item={item} />
+              <RankRow
+                key={item.songId}
+                item={item}
+                commentCount={commentCounts[item.songId]}
+                onClick={() => setSelectedSongId(item.songId)}
+              />
             ))}
           </div>
         )}
       </div>
+
+      <CommentModal
+        open={selectedSongId !== null}
+        songId={selectedSongId ?? 0}
+        onClose={() => setSelectedSongId(null)}
+        onCommentPosted={() => {
+          if (selectedSongId !== null) {
+            setCommentCounts((prev) => ({ ...prev, [selectedSongId]: (prev[selectedSongId] ?? 0) + 1 }))
+          }
+        }}
+      />
     </div>
   )
 }
@@ -141,11 +173,12 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
   )
 }
 
-function RankRow({ item }: { item: RankedSong }) {
+function RankRow({ item, commentCount, onClick }: { item: RankedSong; commentCount?: number; onClick: () => void }) {
   const isTop3 = item.rank <= 3
 
   return (
     <div
+      onClick={onClick}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -158,6 +191,7 @@ function RankRow({ item }: { item: RankedSong }) {
             : 'var(--color-surface-container)'
           : 'var(--color-surface-container)',
         border: item.rank === 1 ? '1px solid rgba(83,224,118,0.35)' : '1px solid transparent',
+        cursor: 'pointer',
       }}
     >
       {/* 순위 */}
@@ -203,21 +237,35 @@ function RankRow({ item }: { item: RankedSong }) {
         </p>
       </div>
 
-      {/* 좋아요 수 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          flexShrink: 0,
-          color: item.likeCount > 0 ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
-          fontFamily: 'var(--font-display)',
-          fontWeight: 'var(--weight-bold)',
-          fontSize: 'var(--text-body-sm)',
-        }}
-      >
-        <span>♥</span>
-        <span>{item.likeCount}</span>
+      {/* 좋아요 수 + 댓글 수 */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            color: item.likeCount > 0 ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 'var(--weight-bold)',
+            fontSize: 'var(--text-body-sm)',
+          }}
+        >
+          <span>♥</span>
+          <span>{item.likeCount}</span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            color: 'var(--color-on-surface-variant)',
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-body-sm)',
+          }}
+        >
+          <span>💬</span>
+          <span>{commentCount ?? '…'}</span>
+        </div>
       </div>
     </div>
   )

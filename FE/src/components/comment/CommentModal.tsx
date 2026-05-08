@@ -11,16 +11,13 @@ interface Props {
   open: boolean
   songId: number
   onClose: () => void
+  onCommentPosted?: () => void
 }
 
-interface PendingComment extends Comment {
-  pending?: boolean
-}
-
-export default function CommentModal({ open, songId, onClose }: Props) {
+export default function CommentModal({ open, songId, onClose, onCommentPosted }: Props) {
   const { currentUser } = useAuth()
   const toast = useToast()
-  const [comments, setComments] = useState<PendingComment[]>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(false)
   const deleteTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map())
 
@@ -28,72 +25,69 @@ export default function CommentModal({ open, songId, onClose }: Props) {
     if (!open) return
     setLoading(true)
     getComments(songId)
-      .then((r) => setComments(r.data.items))
+      .then((r) => setComments(r.data))
       .catch(() => toast.error('댓글을 불러오지 못했어요.'))
       .finally(() => setLoading(false))
   }, [open, songId, toast])
 
-  // 모달 닫힐 때 pending 타이머는 유지 (백그라운드 실행)
   useEffect(() => {
     const timers = deleteTimersRef.current
-    return () => {
-      timers.forEach((t) => clearTimeout(t))
-    }
+    return () => { timers.forEach((t) => clearTimeout(t)) }
   }, [])
 
   const handleSubmit = async (text: string) => {
     if (!currentUser) return
-    const tempId = `temp-${Date.now()}`
-    const temp: PendingComment = {
-      id: tempId as unknown as number,
-      songId,
-      author: currentUser,
-      body: text,
+    const tempId = -Date.now()
+    const temp: Comment = {
+      commentId: tempId,
+      nickname: currentUser.nickname,
+      preferredGenre: currentUser.preferredGenre,
+      content: text,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       pending: true,
     }
     setComments((prev) => [temp, ...prev])
     try {
       const res = await postComment(songId, text)
-      setComments((prev) => prev.map((c) => (c.id === temp.id ? { ...res.data } : c)))
+      setComments((prev) => prev.map((c) => (c.commentId === tempId ? { ...res.data } : c)))
+      onCommentPosted?.()
     } catch {
-      setComments((prev) => prev.filter((c) => c.id !== temp.id))
+      setComments((prev) => prev.filter((c) => c.commentId !== tempId))
       toast.error('댓글 전송에 실패했어요.')
     }
   }
 
-  const handleEdit = async (id: number, text: string) => {
-    const original = comments.find((c) => c.id === id)
-    setComments((prev) => prev.map((c) => (c.id === id ? { ...c, body: text } : c)))
+  const handleEdit = async (commentId: number, text: string) => {
+    const original = comments.find((c) => c.commentId === commentId)
+    setComments((prev) => prev.map((c) => (c.commentId === commentId ? { ...c, content: text } : c)))
     try {
-      const res = await putComment(id, text)
-      setComments((prev) => prev.map((c) => (c.id === id ? { ...res.data } : c)))
+      const res = await putComment(commentId, text)
+      setComments((prev) => prev.map((c) => (c.commentId === commentId ? { ...res.data } : c)))
     } catch {
-      if (original) setComments((prev) => prev.map((c) => (c.id === id ? original : c)))
+      if (original) setComments((prev) => prev.map((c) => (c.commentId === commentId ? original : c)))
       toast.error('댓글 수정에 실패했어요.')
     }
   }
 
-  const handleDelete = (id: number) => {
-    const deleted = comments.find((c) => c.id === id)
-    setComments((prev) => prev.filter((c) => c.id !== id))
+  const handleDelete = (commentId: number) => {
+    const deleted = comments.find((c) => c.commentId === commentId)
+    setComments((prev) => prev.filter((c) => c.commentId !== commentId))
 
     const timer = setTimeout(async () => {
-      deleteTimersRef.current.delete(id)
+      deleteTimersRef.current.delete(commentId)
       try {
-        await deleteComment(id)
+        await deleteComment(commentId)
       } catch {
         if (deleted) setComments((prev) => [deleted, ...prev])
         toast.error('댓글 삭제에 실패했어요.')
       }
     }, 5000)
 
-    deleteTimersRef.current.set(id, timer)
+    deleteTimersRef.current.set(commentId, timer)
 
     toast.undo('댓글을 삭제했어요', () => {
-      clearTimeout(deleteTimersRef.current.get(id))
-      deleteTimersRef.current.delete(id)
+      clearTimeout(deleteTimersRef.current.get(commentId))
+      deleteTimersRef.current.delete(commentId)
       if (deleted) setComments((prev) => [deleted, ...prev])
     })
   }
@@ -128,7 +122,7 @@ export default function CommentModal({ open, songId, onClose }: Props) {
       <CommentList
         comments={comments}
         loading={loading}
-        currentUserId={currentUser?.userId}
+        currentNickname={currentUser?.nickname}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />

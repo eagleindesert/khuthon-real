@@ -1,16 +1,14 @@
 import { apiClient } from './client'
-import type { Comment, PagedResponse } from '@/types'
+import type { Comment } from '@/types'
 
-export const getComments = (songId: number, cursor?: string) =>
-  apiClient.get<PagedResponse<Comment>>(`/songs/${songId}/comments`, {
-    params: cursor ? { cursor } : undefined,
-  })
+export const getComments = (songId: number) =>
+  apiClient.get<Comment[]>(`/songs/${songId}/comments`)
 
-export const postComment = (songId: number, text: string) =>
-  apiClient.post<Comment>(`/songs/${songId}/comments`, { text })
+export const postComment = (songId: number, content: string) =>
+  apiClient.post<Comment>(`/songs/${songId}/comments`, { content })
 
-export const putComment = (commentId: number, text: string) =>
-  apiClient.put<Comment>(`/comments/${commentId}`, { text })
+export const putComment = (commentId: number, content: string) =>
+  apiClient.put<Comment>(`/comments/${commentId}`, { content })
 
 export const deleteComment = (commentId: number) =>
   apiClient.delete(`/comments/${commentId}`)

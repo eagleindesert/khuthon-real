@@ -5,12 +5,12 @@ import Skeleton from '@/components/common/Skeleton'
 interface Props {
   comments: Comment[]
   loading: boolean
-  currentUserId?: number
-  onEdit: (id: number, text: string) => Promise<void>
-  onDelete: (id: number) => void
+  currentNickname?: string
+  onEdit: (commentId: number, text: string) => Promise<void>
+  onDelete: (commentId: number) => void
 }
 
-export default function CommentList({ comments, loading, currentUserId, onEdit, onDelete }: Props) {
+export default function CommentList({ comments, loading, currentNickname, onEdit, onDelete }: Props) {
   if (loading) {
     return (
       <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-md) var(--space-lg)' }}>
@@ -34,9 +34,9 @@ export default function CommentList({ comments, loading, currentUserId, onEdit, 
     <div style={{ flex: 1, overflowY: 'auto' }}>
       {comments.map((comment) => (
         <CommentItem
-          key={comment.id}
+          key={comment.commentId}
           comment={comment}
-          isOwn={comment.author.userId === currentUserId}
+          isOwn={comment.nickname === currentNickname}
           onEdit={onEdit}
           onDelete={onDelete}
         />

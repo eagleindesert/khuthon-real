@@ -20,13 +20,12 @@ export interface Song {
 }
 
 export interface Comment {
-  id: number
-  songId: number
-  author: User
-  body: string
+  commentId: number
+  nickname: string
+  preferredGenre: string
+  content: string
   createdAt: string
-  updatedAt: string
-  isEditing?: boolean
+  pending?: boolean
 }
 
 export interface ApiResponse<T> {
