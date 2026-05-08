@@ -98,10 +98,10 @@
 
 ---
 
-## 3. 곡 목록 조회 (Songs)
+## 2. 곡 목록 및 랭킹 (Songs)
 
 ### 장르별 곡 목록 조회
-장르 이름으로 필터링된 곡 목록을 반환합니다. 장르를 지정하지 않으면 전체 목록을 반환합니다.
+장르 이름으로 필터링된 곡 목록을 반환합니다. 장르를 지정하면 해당 장르에서 랜덤으로 5곡을 추출하여 반환하며, 지정하지 않으면 전체 목록을 반환합니다.
 
 - **URL**: `/api/list`
 - **Method**: `GET`
@@ -122,16 +122,68 @@
     ...
   ]
   ```
-  - `genre` 파라미터가 없으면 전체 곡 목록 반환
-  - 해당 장르의 곡이 없으면 빈 배열 `[]` 반환
+
+### 커뮤니티 그룹별 랭킹 조회
+특정 커뮤니티 그룹이 선호하는 곡들을 좋아요 순으로 정렬하여 반환합니다.
+
+- **URL**: `/api/list/ranks`
+- **Method**: `GET`
+- **인증 필요**: NO
+- **Query Parameters**:
+  | 파라미터 | 타입 | 필수 | 설명 |
+  | :--- | :--- | :--- | :--- |
+  | `preferredGenre` | `String` | YES | 커뮤니티 그룹 (`힙합커뮤`, `밴드커뮤`, `일반인`) |
+  | `genre` | `String` | YES | 필터링할 음악 장르 |
+- **Response**: `200 OK`
+  ```json
+  [
+    {
+      "rank": 1,
+      "songId": 5,
+      "title": "string",
+      "artist": "string",
+      "genre": "string",
+      "likeCount": 128
+    },
+    ...
+  ]
+  ```
+- **에러**:
+  - `400 Bad Request`: 알 수 없는 커뮤니티 그룹인 경우.
 
 ---
 
+## 3. 좋아요 반영 (Likes)
 
-## 2. 음악 데이터 (갱신)
+### 곡 좋아요 추가
+특정 곡에 대해 특정 커뮤니티 그룹의 좋아요 수를 증가시킵니다.
 
-### 트랙 갱신
-Spotify API에서 최신 트랙을 가져와 PostgreSQL에 저장하고 결과를 반환합니다.
+- **URL**: `/api/like`
+- **Method**: `POST`
+- **인증 필요**: NO
+- **Request Body**:
+  ```json
+  {
+    "songId": 1,
+    "preferredGenre": "힙합커뮤",
+    "like": 1
+  }
+  ```
+- **Response**: `200 OK`
+  ```json
+  {
+    "message": "좋아요가 반영되었습니다."
+  }
+  ```
+- **에러**:
+  - `400 Bad Request`: 존재하지 않는 곡 ID거나 잘못된 그룹명인 경우.
+
+---
+
+## 4. 데이터 관리 (Admin/Internal)
+
+### 트랙 데이터 갱신
+Spotify API에서 최신 트랙 정보를 가져와 DB를 갱신합니다. (기존 곡 데이터는 삭제 후 재구축됨)
 
 - **URL**: `/api/refresh`
 - **Method**: `POST`
@@ -159,6 +211,24 @@ Spotify API에서 최신 트랙을 가져와 PostgreSQL에 저장하고 결과�
 | `loginId` | `String` | 사용자의 로그인 ID |
 | `nickname` | `String` | 사용자의 표시 닉네임 |
 | `preferredGenre` | `String` | 사용자가 선호하는 음악 장르 |
+
+### SongResponse
+| 필드명 | 타입 | 설명 |
+| :--- | :--- | :--- |
+| `songId` | `Long` | 곡 고유 ID |
+| `title` | `String` | 곡 제목 |
+| `artist` | `String` | 아티스트 이름 |
+| `genre` | `String` | 장르 이름 |
+
+### RankedSongResponse
+| 필드명 | 타입 | 설명 |
+| :--- | :--- | :--- |
+| `rank` | `int` | 순위 (1부터 시작) |
+| `songId` | `Long` | 곡 고유 ID |
+| `title` | `String` | 곡 제목 |
+| `artist` | `String` | 아티스트 이름 |
+| `genre` | `String` | 장르 이름 |
+| `likeCount` | `long` | 해당 커뮤니티의 추천 수 |
 
 ### TrackInfo
 | 필드명 | 타입 | 설명 |
