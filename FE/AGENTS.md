@@ -9,8 +9,8 @@ React 19 + Vite + TypeScript SPA. 백엔드: Spring Boot (`localhost:8080`).
 - React 19.2.5 + TypeScript 6 (`erasableSyntaxOnly`, `noUnusedLocals`)
 - React Router v7 (v6 API 동일)
 - framer-motion v12 — `import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'`
-- axios — `/api/*` prefix, Vite proxy → `localhost:8080`
-- MSW v2 — DEV 환경에서만 활성화 (`import.meta.env.DEV`)
+- axios — `/api/*` prefix, Vite proxy → `localhost:8080`, `withCredentials: true` (세션 쿠키)
+- MSW v2 — DEV 환경에서만 활성화 (`import.meta.env.DEV`), `onUnhandledRequest: 'bypass'`
 - yt-search — Vite dev server 미들웨어에서만 사용 (Node.js 전용)
 - Docker: `FE/Dockerfile.dev` (Node 20 alpine), `FE/docker-compose.yml`
 
@@ -29,7 +29,7 @@ FE/
     api/            client.ts (axios+interceptors), auth.ts, songs.ts, comments.ts, index.ts
     components/
       common/       Toast, BottomSheet, ActionSheet, ConfirmDialog, Skeleton
-      auth/         LoginPage, SignUpWizard (Step1IdPw, Step2Nickname, Step3Tags)
+      auth/         LoginPage, SignUpWizard (Step1IdPw, Step2Nickname, Step3Genre)
       recommendation/ RecommendationPage, CardStack, Card, ActionButtons, CompletionScreen
       comment/      CommentModal, CommentList, CommentItem, CommentInput, InlineEditor
       layout/       AuthGuard, MainLayout, PhoneShell
@@ -102,22 +102,55 @@ export async function resolveYouTubeId(title, artist): Promise<YouTubeInfo>
 - `formatViews(n)`: `<1K → 숫자`, `1K~10K → 1.2K`, `≥10K → 12K`, `≥1M → 1.2M`
 - 카드 하단 장르 태그 행 우측에 `▶ 2.2K` 형식으로 표시
 
-## 실제 BE API 명세 (`BE/docs/api_spec.md` 기준)
+## 인증 구조
+
+### FE 인증 방식: 세션 쿠키 (JSESSIONID)
+- `api/client.ts`: `withCredentials: true`, JWT Bearer 인터셉터 **없음**
+- 앱 마운트 → `getMe()` 호출 → 쿠키 있으면 user 반환 → `currentUser` 설정
+- 401 응답 → `window.location.href = '/login'`
+- `AuthContext`에 `token` 상태 **없음** — 쿠키는 브라우저가 자동 관리
+
+### User 타입 (BE UserResponse와 일치)
+```ts
+interface User {
+  userId: number
+  loginId: string
+  nickname: string
+  preferredGenre: string
+  tags?: string[]     // optional, 목 댓글 표시용
+}
+```
+
+### SignUpWizard: 3단계
+1. 아이디(`loginId`) + 비밀번호
+2. 닉네임
+3. 선호 장르 **단일 선택** (`preferredGenre: string`, SCENE_TAGS 재사용)
+
+## 실제 BE API 명세
+
+### 구현 완료 (실제 BE 연결)
 ```
 POST /api/auth/register   { loginId, password, nickname, preferredGenre } → UserResponse (201)
-POST /api/auth/login      { loginId, password } → UserResponse + Set-Cookie: JSESSIONID
+POST /api/auth/login      { loginId, password } → UserResponse + Set-Cookie: JSESSIONID (200)
 POST /api/auth/logout     → { message } (인증: JSESSIONID 쿠키)
 GET  /api/auth/me         → UserResponse (인증: JSESSIONID 쿠키)
-POST /api/refresh         → [{ artist, title, genre }]  ← Spotify에서 트랙 갱신
+POST /api/refresh         → [{ artist, title, genre }]  ← Spotify 4개 쿼리로 트랙 갱신
 ```
-**주의**: 인증은 JWT Bearer 토큰이 아닌 **세션 쿠키(JSESSIONID)** 기반.  
-현재 FE의 `api/client.ts`는 JWT 인터셉터로 구현되어 있어 BE 연결 시 수정 필요.  
-`/api/recommendations`, `/api/songs/:id/reactions`, `/api/songs/:id/comments`는 아직 BE 미구현 → MSW 목이 대신 처리.
 
-## MSW 목 데이터 (`src/mocks/handlers.ts`)
-- 목 곡 3개: `youtubeVideoId` 제거됨 (실제 BE 동작 시뮬레이션 — yt-search가 resolve)
-- 인증: `/api/auth/login` → `{ accessToken: 'mock-token-xyz', user: mockUser }`
-- 댓글 CRUD 완전 구현 (nextCommentId 자동 증가)
+### BE DB 스키마 (준비됨, API 미노출)
+```sql
+song(song_id, title, artist, genre_id, duration_seconds, youtube_video_id, youtube_url)
+song_stats(song_id, app_view_count, app_like_count, preferred_genre_like_count)
+song_reaction(reaction_id, user_id, song_id, reaction_type)  -- 'LIKE'|'SKIP'|'REPLAY'
+user_genre_preference(user_id, genre_id, preference_percent)
+```
+- `youtube_video_id` 필드는 BE DB에 존재하지만 현재 Spotify 연동으로 채워지지 않음
+- `song_reaction`, `song_stats`는 엔드포인트 구현 예정
+
+### MSW 목 처리 (BE 미구현)
+- `GET /api/recommendations` → 목 곡 3개 (youtubeVideoId 없음 — yt-search가 resolve)
+- `POST /api/songs/:id/reactions` → `{ ok: true }`
+- `GET/POST /api/songs/:id/comments`, `PUT/DELETE /api/comments/:id` → 완전 구현
 
 ## 핵심 패턴
 - **AuthGuard**: `isLoading` 중 `null` → 하이드레이션 깜박임 방지
