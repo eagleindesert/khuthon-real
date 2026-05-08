@@ -20,7 +20,7 @@ export default function ActionSheet({ open, onClose, children }: Props) {
             transition={{ duration: 0.15 }}
             onClick={onClose}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               inset: 0,
               background: 'rgba(0,0,0,0.5)',
               zIndex: 200,
@@ -33,11 +33,10 @@ export default function ActionSheet({ open, onClose, children }: Props) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 35, stiffness: 350 }}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               bottom: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 'min(100%, 430px)',
+              left: 0,
+              right: 0,
               background: 'var(--color-surface-container-high)',
               borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
               padding: 'var(--space-lg) 0 calc(var(--space-xl) + env(safe-area-inset-bottom, 0px))',

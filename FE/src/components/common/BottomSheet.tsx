@@ -20,7 +20,7 @@ export default function BottomSheet({ open, onClose, children }: Props) {
             transition={{ duration: 0.2 }}
             onClick={onClose}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               inset: 0,
               background: 'rgba(0,0,0,0.6)',
               zIndex: 100,
@@ -33,11 +33,10 @@ export default function BottomSheet({ open, onClose, children }: Props) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               bottom: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 'min(100%, 430px)',
+              left: 0,
+              right: 0,
               maxHeight: '85dvh',
               background: 'var(--color-surface-container)',
               borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',

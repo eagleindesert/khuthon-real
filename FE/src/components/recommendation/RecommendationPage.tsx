@@ -40,7 +40,7 @@ export default function RecommendationPage() {
 
   if (error) {
     return (
-      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 'var(--space-lg)', padding: 'var(--space-margin)' }}>
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 'var(--space-lg)', padding: 'var(--space-margin)' }}>
         <p style={{ fontSize: 48 }}>😢</p>
         <p style={{ color: 'var(--color-on-surface-variant)' }}>추천 곡을 불러오지 못했어요.</p>
         <button
@@ -63,7 +63,7 @@ export default function RecommendationPage() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100dvh',
+          height: '100%',
           paddingTop: 'var(--space-xl)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}

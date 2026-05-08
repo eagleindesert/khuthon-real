@@ -31,7 +31,7 @@ export default function ConfirmDialog({
             transition={{ duration: 0.15 }}
             onClick={onCancel}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               inset: 0,
               background: 'rgba(0,0,0,0.6)',
               zIndex: 300,
@@ -44,7 +44,7 @@ export default function ConfirmDialog({
             exit={{ scale: 0.92, opacity: 0 }}
             transition={{ duration: 0.18 }}
             style={{
-              position: 'fixed',
+              position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',

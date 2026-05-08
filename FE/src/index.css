@@ -86,6 +86,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  background-color: var(--color-surface-container-lowest);
 }
 
 body {
@@ -95,15 +96,10 @@ body {
   font-size: var(--text-body-lg);
   font-weight: var(--weight-medium);
   min-height: 100dvh;
-  max-width: 430px;
-  margin-inline: auto;
-  overflow-x: hidden;
 }
 
 #root {
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
 }
 
 button {

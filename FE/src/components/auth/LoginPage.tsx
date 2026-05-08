@@ -27,7 +27,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'var(--space-margin)' }}>
+    <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'var(--space-margin)' }}>
       <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-headline-lg)', fontWeight: 'var(--weight-bold)', color: 'var(--color-primary)', marginBottom: 'var(--space-xxl)' }}>
         Sonic
       </h1>

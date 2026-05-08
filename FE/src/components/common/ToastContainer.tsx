@@ -11,11 +11,10 @@ export default function ToastContainer({ toasts, onRemove }: Props) {
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 'env(safe-area-inset-top, 16px)',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'min(calc(100% - var(--space-lg) * 2), 390px)',
+        position: 'absolute',
+        top: 'calc(env(safe-area-inset-top, 0px) + var(--space-md))',
+        left: 'var(--space-lg)',
+        right: 'var(--space-lg)',
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-sm)',

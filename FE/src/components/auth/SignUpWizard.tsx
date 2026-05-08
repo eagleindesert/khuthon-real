@@ -159,7 +159,7 @@ function Step3Tags({ loading, onSubmit }: Step3Props) {
 
 function WizardShell({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', padding: 'var(--space-margin)' }}>
+    <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', padding: 'var(--space-margin)' }}>
       <div style={{ display: 'flex', gap: 'var(--space-xs)', marginBottom: 'var(--space-xl)' }}>
         {[1, 2, 3].map((s) => (
           <div
