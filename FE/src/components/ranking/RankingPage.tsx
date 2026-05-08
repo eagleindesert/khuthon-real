@@ -42,20 +42,20 @@ export default function RankingPage() {
           랭킹
         </h2>
 
-        {/* 커뮤니티 필터 */}
-        <SelectorRow>
-          {PREFERRED_GENRES.map((pg) => (
-            <Pill key={pg} active={pg === preferredGenre} onClick={() => setPreferredGenre(pg)}>
-              {pg}
-            </Pill>
-          ))}
-        </SelectorRow>
-
         {/* 장르 필터 */}
         <SelectorRow>
           {GENRES.map((g) => (
             <Pill key={g} active={g === genre} onClick={() => setGenre(g)}>
               {g}
+            </Pill>
+          ))}
+        </SelectorRow>
+
+        {/* 커뮤니티 필터 */}
+        <SelectorRow>
+          {PREFERRED_GENRES.map((pg) => (
+            <Pill key={pg} active={pg === preferredGenre} onClick={() => setPreferredGenre(pg)}>
+              {pg}
             </Pill>
           ))}
         </SelectorRow>
