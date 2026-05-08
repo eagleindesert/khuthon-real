@@ -24,7 +24,7 @@ function formatViews(n: number): string {
 export default function Card({ song, active, onSwipe }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
-  const [isMuted, setIsMuted] = useState(true)
+  const [isMuted, setIsMuted] = useState(false)
 
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-18, 18])
@@ -44,7 +44,7 @@ export default function Card({ song, active, onSwipe }: Props) {
         videoId: song.youtubeVideoId,
         playerVars: {
           autoplay: 1,
-          mute: 1,
+          mute: 0,
           controls: 0,
           playsinline: 1,
           rel: 0,
