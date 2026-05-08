@@ -36,7 +36,7 @@ export default function CommentItem({ comment, isOwn, onEdit, onDelete }: Props)
         <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-body-sm)', fontWeight: 'var(--weight-bold)', color: 'var(--color-on-surface)' }}>
           {comment.author.nickname}
         </span>
-        {comment.author.tags.slice(0, 2).map((tag) => (
+        {comment.author.tags?.slice(0, 2).map((tag) => (
           <span
             key={tag}
             style={{

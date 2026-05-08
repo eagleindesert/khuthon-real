@@ -36,7 +36,7 @@ export default function CommentList({ comments, loading, currentUserId, onEdit, 
         <CommentItem
           key={comment.id}
           comment={comment}
-          isOwn={comment.author.id === currentUserId}
+          isOwn={comment.author.userId === currentUserId}
           onEdit={onEdit}
           onDelete={onDelete}
         />

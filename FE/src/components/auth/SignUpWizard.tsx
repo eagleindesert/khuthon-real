@@ -7,10 +7,10 @@ import type { SceneTag } from '@/utils/sceneTags'
 import { signUp } from '@/api'
 
 interface FormData {
-  username: string
+  loginId: string
   password: string
   nickname: string
-  tags: SceneTag[]
+  preferredGenre: string
 }
 
 export default function SignUpWizard() {
@@ -18,7 +18,7 @@ export default function SignUpWizard() {
   const toast = useToast()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
-  const [form, setForm] = useState<FormData>({ username: '', password: '', nickname: '', tags: [] })
+  const [form, setForm] = useState<FormData>({ loginId: '', password: '', nickname: '', preferredGenre: '' })
   const [loading, setLoading] = useState(false)
 
   const next = (data: Partial<FormData>) => {
@@ -26,12 +26,12 @@ export default function SignUpWizard() {
     setStep((s) => s + 1)
   }
 
-  const handleSubmit = async (tags: SceneTag[]) => {
-    const final = { ...form, tags }
+  const handleSubmit = async (preferredGenre: string) => {
+    const final = { ...form, preferredGenre }
     setLoading(true)
     try {
-      await signUp({ username: final.username, password: final.password, nickname: final.nickname, tags: final.tags })
-      await login({ username: final.username, password: final.password })
+      await signUp({ loginId: final.loginId, password: final.password, nickname: final.nickname, preferredGenre: final.preferredGenre })
+      await login({ loginId: final.loginId, password: final.password })
       navigate('/discover', { replace: true })
     } catch {
       toast.error('회원가입에 실패했습니다. 다시 시도해주세요.')
@@ -41,31 +41,31 @@ export default function SignUpWizard() {
 
   if (step === 1) return <Step1IdPw onNext={(d) => next(d)} />
   if (step === 2) return <Step2Nickname onNext={(d) => next(d)} />
-  return <Step3Tags loading={loading} onSubmit={handleSubmit} />
+  return <Step3Genre loading={loading} onSubmit={handleSubmit} />
 }
 
 /* ─── Step 1: 아이디 / 비밀번호 ─────────────────────────────── */
 
 interface Step1Props {
-  onNext: (d: Pick<FormData, 'username' | 'password'>) => void
+  onNext: (d: Pick<FormData, 'loginId' | 'password'>) => void
 }
 
 function Step1IdPw({ onNext }: Step1Props) {
-  const [username, setUsername] = useState('')
+  const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
 
   const handle = () => {
-    if (username.trim().length < 4) { setError('아이디는 4자 이상이어야 합니다.'); return }
+    if (loginId.trim().length < 4) { setError('아이디는 4자 이상이어야 합니다.'); return }
     if (password.length < 8)       { setError('비밀번호는 8자 이상이어야 합니다.'); return }
     if (password !== confirm)      { setError('비밀번호가 일치하지 않습니다.'); return }
-    onNext({ username: username.trim(), password })
+    onNext({ loginId: loginId.trim(), password })
   }
 
   return (
     <WizardShell step={1} title="계정 만들기">
-      <input type="text" placeholder="아이디 (4자 이상)" value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} autoComplete="username" />
+      <input type="text" placeholder="아이디 (4자 이상)" value={loginId} onChange={(e) => setLoginId(e.target.value)} style={inputStyle} autoComplete="username" />
       <input type="password" placeholder="비밀번호 (8자 이상)" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} autoComplete="new-password" />
       <input type="password" placeholder="비밀번호 확인" value={confirm} onChange={(e) => setConfirm(e.target.value)} style={inputStyle} autoComplete="new-password" />
       {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-body-sm)' }}>{error}</p>}
@@ -99,34 +99,28 @@ function Step2Nickname({ onNext }: Step2Props) {
   )
 }
 
-/* ─── Step 3: 씬 태그 ────────────────────────────────────────── */
+/* ─── Step 3: 선호 장르 선택 ─────────────────────────────────── */
 
 interface Step3Props {
   loading: boolean
-  onSubmit: (tags: SceneTag[]) => void
+  onSubmit: (preferredGenre: string) => void
 }
 
-function Step3Tags({ loading, onSubmit }: Step3Props) {
-  const [selected, setSelected] = useState<SceneTag[]>([])
-
-  const toggle = (tag: SceneTag) => {
-    setSelected((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    )
-  }
+function Step3Genre({ loading, onSubmit }: Step3Props) {
+  const [selected, setSelected] = useState<SceneTag | ''>('')
 
   return (
-    <WizardShell step={3} title="취향 태그 선택">
+    <WizardShell step={3} title="선호 장르 선택">
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--text-body-sm)' }}>
-        좋아하는 씬을 골라주세요. 추천에 반영됩니다.
+        가장 좋아하는 장르를 하나 골라주세요. 추천에 반영됩니다.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
         {SCENE_TAGS.map((tag) => {
-          const active = selected.includes(tag)
+          const active = selected === tag
           return (
             <button
               key={tag}
-              onClick={() => toggle(tag)}
+              onClick={() => setSelected(tag)}
               style={{
                 padding: 'var(--space-sm) var(--space-md)',
                 borderRadius: 'var(--radius-full)',
@@ -145,11 +139,11 @@ function Step3Tags({ loading, onSubmit }: Step3Props) {
         })}
       </div>
       <button
-        onClick={() => { if (selected.length > 0) onSubmit(selected) }}
-        disabled={selected.length === 0 || loading}
+        onClick={() => { if (selected) onSubmit(selected) }}
+        disabled={!selected || loading}
         style={primaryBtnStyle}
       >
-        {loading ? '가입 중…' : `완료 (${selected.length} 선택됨)`}
+        {loading ? '가입 중…' : '완료'}
       </button>
     </WizardShell>
   )

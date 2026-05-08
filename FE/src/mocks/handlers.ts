@@ -2,11 +2,11 @@ import { http, HttpResponse } from 'msw'
 import type { User, Song, Comment } from '@/types'
 
 const mockUser: User = {
-  id: 1,
-  username: 'testuser',
+  userId: 1,
+  loginId: 'testuser',
   nickname: '음악탐험가',
+  preferredGenre: '인디록',
   tags: ['인디록', '재즈'],
-  createdAt: new Date().toISOString(),
 }
 
 const mockSongs: Song[] = [
@@ -37,7 +37,7 @@ const mockComments: Comment[] = [
   {
     id: 1,
     songId: 1,
-    author: { ...mockUser, id: 2, nickname: '재즈마니아', tags: ['재즈', '블루스'] },
+    author: { ...mockUser, userId: 2, loginId: 'jazzfan', nickname: '재즈마니아', preferredGenre: '재즈', tags: ['재즈', '블루스'] },
     body: '이 곡 정말 숨겨진 명곡이에요. 처음 들었을 때 소름이 돋았습니다.',
     createdAt: new Date(Date.now() - 3600_000).toISOString(),
     updatedAt: new Date(Date.now() - 3600_000).toISOString(),
@@ -55,22 +55,6 @@ const mockComments: Comment[] = [
 let nextCommentId = 100
 
 export const handlers = [
-  http.post('/api/auth/login', () => {
-    return HttpResponse.json({ accessToken: 'mock-token-xyz', user: mockUser })
-  }),
-
-  http.post('/api/auth/signup', () => {
-    return HttpResponse.json({ user: mockUser })
-  }),
-
-  http.get('/api/auth/me', () => {
-    return HttpResponse.json(mockUser)
-  }),
-
-  http.post('/api/auth/logout', () => {
-    return HttpResponse.json({})
-  }),
-
   http.get('/api/recommendations', () => {
     return HttpResponse.json(mockSongs)
   }),

@@ -8,16 +8,16 @@ export default function LoginPage() {
   const { login } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
+  const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!username.trim() || !password) return
+    if (!loginId.trim() || !password) return
     setLoading(true)
     try {
-      await login({ username: username.trim(), password })
+      await login({ loginId: loginId.trim(), password })
       navigate('/discover', { replace: true })
     } catch {
       toast.error('아이디 또는 비밀번호를 확인해주세요.')
@@ -35,8 +35,8 @@ export default function LoginPage() {
         <input
           type="text"
           placeholder="아이디"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={loginId}
+          onChange={(e) => setLoginId(e.target.value)}
           required
           autoComplete="username"
           style={inputStyle}
