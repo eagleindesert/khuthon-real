@@ -35,7 +35,8 @@ public class SpotifyService {
         body.add("grant_type", "client_credentials");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity("https://accounts.spotify.com/api/token", request, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity("https://accounts.spotify.com/api/token", request,
+                String.class);
 
         try {
             JsonNode root = objectMapper.readTree(response.getBody());
@@ -49,9 +50,9 @@ public class SpotifyService {
         if (accessToken == null) {
             authenticate();
         }
-        
+
         List<SpotifyTrack> tracks = new ArrayList<>();
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -61,14 +62,14 @@ public class SpotifyService {
                 String url = UriComponentsBuilder.fromUriString("https://api.spotify.com/v1/search")
                         .queryParam("q", query)
                         .queryParam("type", "track")
-                        .queryParam("limit", 20)
+                        .queryParam("limit", 10)
                         .toUriString();
-                        
+
                 ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-                
+
                 JsonNode root = objectMapper.readTree(response.getBody());
                 JsonNode items = root.path("tracks").path("items");
-                
+
                 if (items.isArray()) {
                     for (JsonNode item : items) {
                         String trackName = item.path("name").asText();
@@ -81,9 +82,10 @@ public class SpotifyService {
                 e.printStackTrace();
             }
         }
-        
+
         return tracks;
     }
-    
-    public record SpotifyTrack(String artistName, String trackName, String query) {}
+
+    public record SpotifyTrack(String artistName, String trackName, String query) {
+    }
 }
