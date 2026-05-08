@@ -1,15 +1,17 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getList, postReaction, GENRES } from '@/api'
+import { getList, postReaction, postLike, GENRES } from '@/api'
 import type { Genre } from '@/api'
 import { resolveYouTubeId } from '@/utils/resolveYouTubeId'
 import type { Song } from '@/types'
+import { useAuth } from '@/contexts/AuthContext'
 import CardStack, { CardStackSkeleton } from './CardStack'
 import ActionButtons from './ActionButtons'
 import CompletionScreen from './CompletionScreen'
 import CommentModal from '@/components/comment/CommentModal'
 
 export default function RecommendationPage() {
+  const { currentUser } = useAuth()
   const [genre, setGenre] = useState<Genre | null>(null)
   const [songs, setSongs] = useState<Song[]>([])
   const [idx, setIdx] = useState(0)
@@ -51,14 +53,13 @@ export default function RecommendationPage() {
     return () => clearTimeout(t)
   }, [showHint])
 
-  const react = async (type: 'like' | 'dislike') => {
+  const react = (type: 'like' | 'dislike') => {
     const song = songs[idx]
     setIdx((i) => i + 1)
-    try {
-      await postReaction(song.id, type)
-    } catch {
-      // 반응 실패는 조용히 무시
+    if (type === 'like' && currentUser?.preferredGenre) {
+      postLike(song.id, currentUser.preferredGenre).catch(() => {})
     }
+    postReaction(song.id, type).catch(() => {})
   }
 
   // ── 장르 선택 화면 ──────────────────────────────────────────

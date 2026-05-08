@@ -8,6 +8,10 @@ export const GENRES = [
   'Underground Hiphop 한국',
   'Korean R&B',
   'Korean Rock',
+  'Korean Jazz',
+  'Korean Traditional Gugak',
+  'Korean Trot',
+  'Korean Retro',
 ] as const
 
 export type Genre = typeof GENRES[number]
@@ -31,6 +35,9 @@ export const getList = async (genre: Genre): Promise<Song[]> => {
 
 export const postReaction = (songId: number, type: ReactionType) =>
   apiClient.post(`/songs/${songId}/reactions`, { type })
+
+export const postLike = (songId: number, preferredGenre: string) =>
+  apiClient.post('/like', { songId, preferredGenre, like: 1 })
 
 export interface RankedSong {
   rank: number
